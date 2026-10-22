@@ -1,5 +1,81 @@
 "use client";
 import { FormEvent, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
-export default function ContactPage() { const [sent, setSent] = useState(false); const [error, setError] = useState(""); async function submit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); setError(""); const form = new FormData(event.currentTarget); const api = process.env.NEXT_PUBLIC_BACKEND_API_URL ?? "http://localhost:4000/api/v1"; const schoolId = process.env.NEXT_PUBLIC_SCHOOL_ID ?? ""; const response = await fetch(`${api}/public/content/contact-messages${schoolId ? `?schoolId=${encodeURIComponent(schoolId)}` : ""}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.fromEntries(form)) }); if (response.ok) { setSent(true); event.currentTarget.reset(); } else setError("বার্তা পাঠানো যায়নি। আবার চেষ্টা করুন।"); } return <main className="min-h-screen bg-neutral-50"><div className="bg-primary-800 px-4 py-10 text-white"><div className="mx-auto max-w-[1200px]"><h1 className="text-3xl font-bold">যোগাযোগ</h1></div></div><div className="mx-auto max-w-[700px] px-4 py-8"><form onSubmit={submit} className="space-y-4 rounded-lg border border-neutral-200 bg-white p-6"><Field name="name" label="নাম" /><Field name="mobile" label="মোবাইল" /><Field name="email" label="ইমেইল" required={false} /><Field name="subject" label="বিষয়" /><label className="block text-sm font-semibold">বার্তা<textarea name="message" required minLength={5} className="mt-1 min-h-32 w-full rounded-md border border-neutral-200 p-3 font-normal" /></label><button className="rounded-md bg-primary-600 px-5 py-2 font-semibold text-white" type="submit">বার্তা পাঠান</button>{sent && <p className="text-sm text-accent-600">আপনার বার্তা গ্রহণ করা হয়েছে।</p>}{error && <p className="text-sm text-danger-600">{error}</p>}</form></div></main>; }
-function Field({ name, label, required = true }: { name: string; label: string; required?: boolean }) { return <label className="block text-sm font-semibold">{label}<input name={name} required={required} className="mt-1 h-11 w-full rounded-md border border-neutral-200 px-3 font-normal" /></label>; }
+export default function ContactPage() {
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
+  async function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError("");
+    const form = new FormData(event.currentTarget);
+    const api =
+      process.env.NEXT_PUBLIC_BACKEND_API_URL ??
+      "https://school-mangment-backend.vercel.app/api/v1";
+    const schoolId = process.env.NEXT_PUBLIC_SCHOOL_ID ?? "";
+    const response = await fetch(
+      `${api}/public/content/contact-messages${schoolId ? `?schoolId=${encodeURIComponent(schoolId)}` : ""}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.fromEntries(form)),
+      },
+    );
+    if (response.ok) {
+      setSent(true);
+      event.currentTarget.reset();
+    } else setError("বার্তা পাঠানো যায়নি। আবার চেষ্টা করুন।");
+  }
+  return (
+    <main className="public-page">
+      <div className="public-page-inner contact-layout">
+        <div>
+          <p className="public-kicker">সরাসরি যোগাযোগ</p>
+          <h1 className="public-page-title">যোগাযোগ</h1>
+          <p className="contact-intro">
+            বিদ্যালয়ের যেকোনো তথ্য, পরামর্শ বা প্রশ্নের জন্য আমাদের লিখুন।
+          </p>
+          <div className="contact-info-card">
+            <b>আদর্শ মডেল উচ্চ বিদ্যালয়</b>
+            <span>কুড়িগ্রাম সদর · EIIN 123456</span>
+            <span>রবিবার–বৃহস্পতিবার · সকাল ৯টা–বিকেল ৪টা</span>
+          </div>
+        </div>
+        <form onSubmit={submit} className="public-card contact-form">
+          <h2>বার্তা পাঠান</h2>
+          <Field name="name" label="নাম" />
+          <Field name="mobile" label="মোবাইল" />
+          <Field name="email" label="ইমেইল" required={false} />
+          <Field name="subject" label="বিষয়" />
+          <label>
+            বার্তা
+            <Textarea name="message" required minLength={5} />
+          </label>
+          <Button type="submit">বার্তা পাঠান</Button>
+          {sent && (
+            <p className="contact-success">আপনার বার্তা গ্রহণ করা হয়েছে।</p>
+          )}
+          {error && <p className="contact-error">{error}</p>}
+        </form>
+      </div>
+    </main>
+  );
+}
+function Field({
+  name,
+  label,
+  required = true,
+}: {
+  name: string;
+  label: string;
+  required?: boolean;
+}) {
+  return (
+    <label>
+      {label}
+      <Input name={name} required={required} />
+    </label>
+  );
+}

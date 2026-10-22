@@ -1,3 +1,36 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { publicApi } from "@/lib/api";
-export default async function NoticeDetail({ params }: { params: Promise<{ id: string }> }) { const { id } = await params; const result = await publicApi<{ data: Array<{ id: string; titleBn: string; details: string; category: string }> }>("/public/content/notices"); const notice = result?.data.find((item) => item.id === id); if (!notice) notFound(); return <main className="min-h-screen bg-neutral-50 px-4 py-10"><article className="mx-auto max-w-[900px] rounded-lg border border-neutral-200 bg-white p-8"><p className="text-sm text-neutral-500">{notice.category}</p><h1 className="mt-2 text-3xl font-bold text-primary-800">{notice.titleBn}</h1><p className="mt-6 whitespace-pre-wrap leading-8 text-neutral-700">{notice.details}</p></article></main>; }
+import { sanitizeHtml } from "@/lib/sanitize-html";
+export default async function NoticeDetail({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const result = await publicApi<{
+    data: Array<{
+      id: string;
+      titleBn: string;
+      details: string;
+      category: string;
+    }>;
+  }>("/public/content/notices");
+  const notice = result?.data.find((item) => item.id === id);
+  if (!notice) notFound();
+  return (
+    <main className="public-page">
+      <article className="public-detail-card">
+        <p className="public-breadcrumb">হোম › বিজ্ঞপ্তি › {notice.category}</p>
+        <div className="notice-detail-label">{notice.category}</div>
+        <h1>{notice.titleBn}</h1>
+        <div className="notice-detail-rule" />
+        <div
+          className="rich-content"
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(notice.details) }}
+        />
+        <Link href="/notices">← সব বিজ্ঞপ্তি</Link>
+      </article>
+    </main>
+  );
+}

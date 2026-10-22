@@ -1,4 +1,61 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { publicApi } from "@/lib/api";
-type PageResponse = { data: Array<{ id: string; slug: string; titleBn: string; titleEn: string | null; body: string; excerpt: string | null }> };
-export default async function ContentPage({ params }: { params: Promise<{ slug: string }> }) { const { slug } = await params; const payload = await publicApi<PageResponse>("/public/content/pages"); const page = payload?.data.find((item) => item.slug === slug); if (!page) notFound(); return <main className="min-h-screen bg-neutral-50"><div className="bg-primary-800 px-4 py-10 text-white"><div className="mx-auto max-w-[1200px]"><p className="text-sm text-primary-100">হোম → তথ্য</p><h1 className="mt-2 text-3xl font-bold">{page.titleBn}</h1></div></div><article className="mx-auto max-w-[900px] px-4 py-10"><p className="mb-6 text-lg text-neutral-600">{page.excerpt}</p><div className="whitespace-pre-wrap rounded-lg border border-neutral-200 bg-white p-6 leading-8">{page.body}</div></article></main>; }
+import { sanitizeHtml } from "@/lib/sanitize-html";
+type PageResponse = {
+  data: Array<{
+    id: string;
+    slug: string;
+    titleBn: string;
+    titleEn: string | null;
+    body: string;
+    excerpt: string | null;
+  }>;
+};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const payload = await publicApi<PageResponse>("/public/content/pages");
+  const page = payload?.data.find((item) => item.slug === slug);
+  if (!page) return { title: "পৃষ্ঠা পাওয়া যায়নি" };
+  const description =
+    page.excerpt ?? page.body.replace(/<[^>]+>/g, " ").slice(0, 155);
+  return {
+    title: page.titleBn,
+    description,
+    alternates: { canonical: `/${page.slug}` },
+    openGraph: { title: page.titleBn, description, type: "article" },
+  };
+}
+export default async function ContentPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const payload = await publicApi<PageResponse>("/public/content/pages");
+  const page = payload?.data.find((item) => item.slug === slug);
+  if (!page) notFound();
+  return (
+    <main className="public-page">
+      <div className="public-page-inner">
+        <p className="public-breadcrumb">হোম › তথ্য</p>
+        <article className="public-detail-card">
+          <p className="public-kicker">{page.titleEn ?? "বিদ্যালয়ের তথ্য"}</p>
+          <h1>{page.titleBn}</h1>
+          {page.excerpt && (
+            <p className="public-detail-excerpt">{page.excerpt}</p>
+          )}
+          <div className="notice-detail-rule" />
+          <div
+            className="rich-content"
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(page.body) }}
+          />
+        </article>
+      </div>
+    </main>
+  );
+}
