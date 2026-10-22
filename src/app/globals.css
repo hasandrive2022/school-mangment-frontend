@@ -24,3 +24,17 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* School Management design tokens — primary colors may be overridden by school settings. */
+:root {
+  --color-primary-900: #0b2740; --color-primary-800: #0f3151; --color-primary-700: #16456e;
+  --color-primary-600: #21699d; --color-primary-500: #3798ea; --color-primary-100: #dcebf7; --color-primary-50: #f2f7fc;
+  --color-accent-600: #1e7a46; --color-accent-500: #2e9e5b; --color-warning-600: #d97706; --color-danger-600: #c62828;
+  --color-neutral-900: #1a1a1a; --color-neutral-600: #5a5a5a; --color-neutral-200: #e5e7eb; --color-neutral-50: #f8f9fa; --color-white: #fff;
+  --font-bengali: "Hind Siliguri", "Noto Sans Bengali", sans-serif;
+}
+@theme inline {
+  --color-primary-900: var(--color-primary-900); --color-primary-800: var(--color-primary-800); --color-primary-700: var(--color-primary-700); --color-primary-600: var(--color-primary-600); --color-primary-500: var(--color-primary-500); --color-primary-100: var(--color-primary-100); --color-primary-50: var(--color-primary-50);
+  --color-accent-600: var(--color-accent-600); --color-accent-500: var(--color-accent-500); --color-warning-600: var(--color-warning-600); --color-danger-600: var(--color-danger-600); --color-neutral-900: var(--color-neutral-900); --color-neutral-600: var(--color-neutral-600); --color-neutral-200: var(--color-neutral-200); --color-neutral-50: var(--color-neutral-50); --color-white: var(--color-white); --font-sans: var(--font-bengali);
+}
+html, body { font-family: var(--font-bengali); }
