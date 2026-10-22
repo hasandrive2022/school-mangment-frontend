@@ -1,69 +1,12 @@
-import Image from "next/image";
+import Link from "next/link";
+import { publicApi, type HomeData } from "@/lib/api";
 
-export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+export default async function HomePage() {
+  const payload = await publicApi<HomeData>("/public/content/home");
+  const data = payload?.data;
+  const blocks = [...(data?.blocks ?? [])].filter((block) => block.isEnabled).sort((a, b) => a.orderIndex - b.orderIndex);
+  const enabled = (key: string) => blocks.some((block) => block.key === key);
+  const school = data?.school;
+  return <div className="min-h-screen bg-neutral-50 text-neutral-900"><div className="bg-primary-900 text-sm text-primary-100"><div className="mx-auto flex max-w-[1200px] justify-between gap-4 px-4 py-2"><span>EIIN: {school?.eiin ?? "—"} · প্রতিষ্ঠিত: {school?.foundedYear ?? "—"}</span><Link href="/login" className="text-white">Admin লগইন</Link></div></div><header className="bg-white"><div className="mx-auto flex max-w-[1200px] items-center justify-between gap-6 px-4 py-5"><div><h1 className="text-2xl font-bold text-primary-800 md:text-3xl">{school?.nameBn ?? "বিদ্যালয়"}</h1><p className="text-sm text-neutral-600">{school?.nameEn ?? "School website"}</p></div>{school?.logoUrl && <img src={school.logoUrl} alt="বিদ্যালয়ের লোগো" className="size-16 rounded object-contain" />}</div></header>{enabled("menu") && <nav className="bg-primary-800 text-white"><div className="mx-auto flex max-w-[1200px] gap-5 overflow-x-auto px-4 py-3 text-sm"><Link href="/">হোম</Link><Link href="/about">আমাদের বিদ্যালয়</Link><Link href="/notices">বিজ্ঞপ্তি</Link><Link href="/news">খবর</Link><Link href="/gallery">গ্যালারি</Link><Link href="/downloads">ডাউনলোড</Link><Link href="/contact">যোগাযোগ</Link></div></nav>}{enabled("ticker") && data?.notices?.[0] && <div className="border-b bg-white"><div className="mx-auto flex max-w-[1200px] items-center gap-3 px-4 py-2 text-sm"><span className="rounded bg-danger-600 px-3 py-1 font-semibold text-white">সর্বশেষ</span><Link href={`/notices/${data.notices[0].id}`} className="truncate">{data.notices[0].titleBn}</Link></div></div>}<main className="mx-auto max-w-[1200px] space-y-8 px-4 py-6">{enabled("banner") && <section className="overflow-hidden rounded-lg bg-primary-800">{data?.banners?.[0] ? <div className="relative"><img src={data.banners[0].imageUrl} alt={data.banners[0].titleBn} className="aspect-[16/6] w-full object-cover opacity-70" /><div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-primary-900/90 p-6 text-white"><h2 className="text-2xl font-bold">{data.banners[0].titleBn}</h2><p>{data.banners[0].captionBn}</p></div></div> : <div className="p-10 text-center text-primary-100">ব্যানার শীঘ্রই প্রকাশিত হবে</div>}</section>}{enabled("notices") && <section><SectionTitle title="বিজ্ঞপ্তি" href="/notices" /><div className="grid gap-3 md:grid-cols-2">{(data?.notices ?? []).slice(0, 6).map((notice) => <Link key={notice.id} href={`/notices/${notice.id}`} className="rounded-lg border border-neutral-200 bg-white p-4 hover:border-primary-500"><span className="text-xs text-neutral-600">{notice.category} {notice.isPinned ? "· জরুরি" : ""}</span><h3 className="mt-1 font-semibold text-primary-800">{notice.titleBn}</h3></Link>)}</div></section>}{enabled("news") && <section><SectionTitle title="সাম্প্রতিক খবর" href="/news" /><div className="grid gap-4 md:grid-cols-3">{(data?.news ?? []).slice(0, 3).map((item) => <article key={item.id} className="rounded-lg border border-neutral-200 bg-white p-4"><h3 className="font-semibold text-primary-800">{item.titleBn}</h3><p className="mt-2 text-sm text-neutral-600">{item.summary}</p></article>)}</div></section>}{enabled("services") && <section><SectionTitle title="গুরুত্বপূর্ণ সেবা" /><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{(data?.services ?? []).map((service) => <div key={service.id} className="rounded-lg border border-neutral-200 bg-white p-5"><div className="mb-3 flex size-10 items-center justify-center rounded-full bg-primary-100 text-primary-700">✦</div><h3 className="font-semibold text-primary-800">{service.titleBn}</h3><Link href="/about" className="mt-3 inline-block text-sm">বিস্তারিত →</Link></div>)}</div></section>}{enabled("events") && <section><SectionTitle title="আসন্ন অনুষ্ঠান" href="/events" /><div className="grid gap-3 md:grid-cols-2">{(data?.events ?? []).slice(0, 4).map((event) => <div key={event.id} className="rounded-lg border border-neutral-200 bg-white p-4"><h3 className="font-semibold text-primary-800">{event.titleBn}</h3><p className="text-sm text-neutral-600">{new Date(event.startsAt).toLocaleDateString("bn-BD")} · {event.venue ?? "বিদ্যালয় প্রাঙ্গণ"}</p></div>)}</div></section>}{enabled("messages") && <section><SectionTitle title="বাণী" /><div className="grid gap-4 md:grid-cols-3">{(data?.messages ?? []).slice(0, 3).map((message) => <article key={message.personNameBn} className="rounded-lg border border-neutral-200 bg-white p-5"><h3 className="font-semibold text-primary-800">{message.personNameBn}</h3><p className="text-sm text-accent-600">{message.designationBn}</p><p className="mt-3 text-sm text-neutral-600">{message.body}</p></article>)}</div></section>}</main><footer className="mt-8 bg-primary-900 text-primary-100"><div className="mx-auto max-w-[1200px] px-4 py-8"><h2 className="font-bold text-white">{school?.nameBn ?? "বিদ্যালয়"}</h2><p className="mt-2 text-sm">{school?.address ?? ""}</p></div></footer></div>;
 }
+function SectionTitle({ title, href }: { title: string; href?: string }) { return <div className="mb-4 flex items-center justify-between border-l-4 border-primary-600 pl-3"><h2 className="text-xl font-bold text-primary-800">{title}</h2>{href && <Link href={href} className="text-sm">সব দেখুন →</Link>}</div>; }

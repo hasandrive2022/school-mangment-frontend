@@ -1,0 +1,5 @@
+import Link from "next/link";
+import { publicApi } from "@/lib/api";
+type Response = { data: Array<{ id: string; titleBn: string; category: string; details: string; isPinned: boolean; createdAt: string }> };
+export default async function NoticesPage() { const payload = await publicApi<Response>("/public/content/notices"); return <main className="min-h-screen bg-neutral-50"><Header title="বিজ্ঞপ্তি বোর্ড" /><div className="mx-auto max-w-[1200px] space-y-3 px-4 py-8">{(payload?.data ?? []).map((item) => <Link href={`/notices/${item.id}`} key={item.id} className="block rounded-lg border border-neutral-200 bg-white p-5 hover:border-primary-500"><span className="text-xs text-neutral-600">{item.category} · {new Date(item.createdAt).toLocaleDateString("bn-BD")}</span><h2 className="mt-1 text-lg font-semibold text-primary-800">{item.titleBn}{item.isPinned && " 📌"}</h2><p className="mt-2 text-sm text-neutral-600">{item.details}</p></Link>)}</div></main>; }
+function Header({ title }: { title: string }) { return <div className="bg-primary-800 px-4 py-10 text-white"><div className="mx-auto max-w-[1200px]"><h1 className="text-3xl font-bold">{title}</h1></div></div>; }
