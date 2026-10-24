@@ -1963,6 +1963,340 @@ body {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* Final responsive polish shared by every public page. */
+.dsite {
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: linear-gradient(180deg, #eef4f8 0%, #f8f9fa 22rem);
+}
+.dsite .site-header {
+  position: relative;
+  isolation: isolate;
+}
+.dsite .site-header::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -1px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--a600), var(--p500), var(--danger));
+  opacity: .9;
+}
+.dsite .brand h1,
+.dsite .sec-title,
+.dsite .public-title,
+.dsite .public-detail-card h1,
+.dsite .contact-form h2 {
+  letter-spacing: -.02em;
+}
+.dsite .card,
+.dsite .fact,
+.dsite .pcard,
+.dsite .tbl-wrap,
+.dsite .public-detail-card,
+.dsite .contact-info-card {
+  transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease;
+}
+.dsite .card:hover,
+.dsite .fact:hover,
+.dsite .pcard:hover {
+  border-color: #c9dceb;
+  box-shadow: 0 10px 26px rgba(15,49,81,.11);
+}
+.dsite main.container {
+  width: 100%;
+}
+.dsite .block {
+  margin-top: clamp(24px, 4vw, 42px);
+}
+.dsite .block:first-child {
+  margin-top: 24px;
+}
+.dsite .sec-head {
+  margin-top: 0;
+}
+.dsite input,
+.dsite select,
+.dsite textarea {
+  max-width: 100%;
+}
+.dsite .hero,
+.dsite .hero-slider,
+.dsite .hero-wrap {
+  border-radius: 12px;
+  overflow: hidden;
+}
+@media (max-width: 820px) {
+  .dsite .topbar .container {
+    min-height: 34px;
+    justify-content: center;
+  }
+  .dsite .topbar .tb-left {
+    display: none;
+  }
+  .dsite .topbar .tb-right {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .dsite .site-header .container {
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+  .dsite .brand {
+    gap: 11px;
+  }
+  .dsite .brand h1 {
+    font-size: clamp(18px, 4.4vw, 22px);
+  }
+  .dsite .brand .en,
+  .dsite .brand .motto {
+    font-size: 11px;
+  }
+  .dsite .navbar .container {
+    min-height: 48px;
+  }
+  .dsite .drawer {
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+  }
+}
+@media (max-width: 640px) {
+  .dsite .ticker .container {
+    padding: 0;
+  }
+  .dsite .ticker-label {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  .dsite .tick-item {
+    padding-left: 12px;
+    font-size: 13px;
+  }
+  .dsite .pbanner h2 {
+    align-items: flex-start;
+  }
+  .dsite .sec-head {
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .dsite .sec-title {
+    font-size: 19px;
+  }
+  .dsite .sec-title::before {
+    height: 21px;
+  }
+  .dsite .sec-more {
+    font-size: 13px;
+    margin-top: 2px;
+  }
+  .dsite .two-col,
+  .dsite .grid-2 {
+    gap: 14px;
+  }
+  .dsite .card {
+    border-radius: 10px;
+  }
+  .dsite footer .foot-grid {
+    padding-left: 2px;
+    padding-right: 2px;
+  }
+}
+@media (max-width: 420px) {
+  .dsite .container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .dsite .brand .logo {
+    width: 48px;
+    height: 48px;
+  }
+  .dsite .brand h1 {
+    font-size: 17px;
+  }
+  .dsite .brand .en {
+    display: none;
+  }
+  .dsite .admin-link {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    font-size: 12px !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dsite .card,
+  .dsite .fact,
+  .dsite .pcard {
+    transition: none;
+  }
+}
+
+/* Final responsive pass shared by every public route. */
+.dsite .container {
+  width: min(100%, 1248px);
+}
+.dsite .card,
+.dsite .fact,
+.dsite .pcard,
+.dsite .nitem,
+.dsite .album-card,
+.dsite .video-card,
+.dsite .link-card {
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.dsite .card:hover,
+.dsite .fact:hover,
+.dsite .pcard:hover,
+.dsite .album-card:hover,
+.dsite .video-card:hover,
+.dsite .link-card:hover {
+  transform: translateY(-2px);
+}
+.dsite button,
+.dsite input,
+.dsite select,
+.dsite textarea {
+  font: inherit;
+}
+.dsite input,
+.dsite select,
+.dsite textarea {
+  min-height: 42px;
+  border-radius: 7px;
+}
+.dsite textarea {
+  min-height: 110px;
+}
+.dsite .form-grid,
+.dsite .filter-grid,
+.dsite .summary-row {
+  min-width: 0;
+}
+.dsite .tbl-wrap,
+.dsite .table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.dsite .hero img,
+.dsite .hero-slider img {
+  max-height: min(58vw, 520px);
+  object-fit: cover;
+}
+.dsite .public-page {
+  min-height: 42vh;
+  padding: clamp(22px, 4vw, 44px) 16px;
+  background: var(--bg);
+}
+.dsite .public-page-inner {
+  width: min(100%, 1200px);
+  margin-inline: auto;
+}
+.dsite .public-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+.dsite .public-card {
+  min-width: 0;
+  padding: 20px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow);
+}
+.dsite .public-card h2 {
+  margin: 12px 0 6px;
+  color: var(--p800);
+  font-size: 18px;
+}
+.dsite .public-card p {
+  margin: 0 0 10px;
+  color: var(--ink2);
+}
+.dsite .public-card-top,
+.dsite .public-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.dsite .public-card-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--p100);
+  color: var(--p700);
+  font-size: 22px;
+}
+@media (max-width: 900px) {
+  .dsite .public-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .dsite .brand {
+    flex: 1;
+  }
+  .dsite .brand > div {
+    min-width: 0;
+  }
+  .dsite .brand h1,
+  .dsite .brand .en,
+  .dsite .brand .motto {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+@media (max-width: 640px) {
+  .dsite .container {
+    padding-inline: 14px;
+  }
+  .dsite .site-header .container {
+    align-items: center;
+  }
+  .dsite .topbar .container {
+    padding-inline: 12px;
+  }
+  .dsite .public-page {
+    padding-inline: 12px;
+  }
+  .dsite .public-card-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .dsite .public-title-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .dsite .public-page-title {
+    font-size: clamp(24px, 7vw, 32px);
+  }
+  .dsite .public-card {
+    padding: 16px;
+  }
+  .dsite .filter-grid,
+  .dsite .filter-grid.f3,
+  .dsite .filter-grid.f4 {
+    grid-template-columns: 1fr;
+  }
+  .dsite .filter-grid .btn {
+    grid-column: auto;
+    width: 100%;
+  }
+  .dsite .sec-head {
+    flex-wrap: wrap;
+  }
+  .dsite .sec-more {
+    margin-left: auto;
+  }
+  .dsite .float-photo,
+  .dsite .msg-photo {
+    max-width: 100%;
+  }
+}
 .error-page {
   min-height: 100vh;
   display: grid;
