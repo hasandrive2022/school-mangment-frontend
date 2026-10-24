@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { bnDay, bnMonthYear } from "@/lib/bn";
+import { categoryLabel } from "@/lib/categories";
 
 export type NoticeRow = {
   id: string;
@@ -42,7 +43,7 @@ export default function NoticesBrowser({ rows }: { rows: NoticeRow[] }) {
             className={active === category ? "fchip on" : "fchip"}
             onClick={() => setActive(category)}
           >
-            {category}
+            {categoryLabel(category)}
           </button>
         ))}
       </div>
@@ -64,7 +65,7 @@ export default function NoticesBrowser({ rows }: { rows: NoticeRow[] }) {
               </h3>
               {item.details && <p>{stripTags(item.details)}</p>}
               <div className="nmeta">
-                {item.category && <span className="chip">{item.category}</span>}
+                {item.category && <span className="chip">{categoryLabel(item.category)}</span>}
                 {item.isPinned && <span className="chip chip-red">পিন করা</span>}
               </div>
             </div>

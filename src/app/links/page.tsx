@@ -13,6 +13,15 @@ function hostOf(url: string): string {
   }
 }
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "গুরুত্বপূর্ণ লিঙ্ক",
+  description: "শিক্ষা সংক্রান্ত গুরুত্বপূর্ণ সরকারি ওয়েবসাইট ও সেবার লিঙ্ক।",
+  alternates: { canonical: "/links" },
+  openGraph: { title: "গুরুত্বপূর্ণ লিঙ্ক", description: "শিক্ষা সংক্রান্ত গুরুত্বপূর্ণ সরকারি ওয়েবসাইট ও সেবার লিঙ্ক।", url: "/links" },
+};
+
 export default async function LinksPage() {
   const payload = await publicApi<Response>("/public/content/importantLinks");
   const rows = payload?.data ?? [];

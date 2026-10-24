@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { publicApi } from "@/lib/api";
+import { categoryLabel } from "@/lib/categories";
 import { sanitizeHtml } from "@/lib/sanitize-html";
 import { bnDate } from "@/lib/bn";
 import PublicShell from "@/components/site-chrome";
@@ -13,6 +15,26 @@ type Notice = {
   isPinned?: boolean;
   createdAt?: string;
 };
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const result = await publicApi<{ data: Notice[] }>("/public/content/notices");
+  const notice = result?.data.find((item) => item.id === id);
+  if (!notice) return { title: "নোটিশ পাওয়া যায়নি" };
+  const description = notice.details
+    ? notice.details.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 155)
+    : `${notice.titleBn} — বিদ্যালয়ের নোটিশ।`;
+  return {
+    title: notice.titleBn,
+    description,
+    alternates: { canonical: `/notices/${id}` },
+    openGraph: { title: notice.titleBn, description, type: "article", url: `/notices/${id}` },
+  };
+}
 
 export default async function NoticeDetail({
   params,
@@ -46,7 +68,7 @@ export default async function NoticeDetail({
         <div className="two-col">
           <article className="card" style={{ padding: 28 }}>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 12 }}>
-              {notice.category && <span className="chip">{notice.category}</span>}
+              {notice.category && <span className="chip">{categoryLabel(notice.category)}</span>}
               {notice.isPinned && <span className="chip chip-red">পিন করা</span>}
               {notice.createdAt && (
                 <span className="news-date" style={{ marginLeft: "auto" }}>

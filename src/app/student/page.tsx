@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { usePortalSWR } from "@/lib/swr";
 import { bnDate, bnMonthYear, toBn } from "@/lib/bn";
+import { categoryLabel } from "@/lib/categories";
 
 const api =
   process.env.NEXT_PUBLIC_BACKEND_API_URL ??
@@ -189,15 +190,7 @@ const remainingOf = (row: Row): number =>
     ? n(row.remainingAmount)
     : Math.max(n(row.amount) - n(row.paidAmount), 0);
 
-const CATEGORY_LABELS: Record<string, string> = {
-  general: "সাধারণ",
-  admission: "ভর্তি",
-  fee: "ফি",
-  exam: "পরীক্ষা",
-  holiday: "ছুটি",
-  result: "ফলাফল",
-  urgent: "জরুরি",
-};
+
 const METHOD_LABELS: Record<string, string> = {
   CASH: "নগদ (অফিস)",
   cash: "নগদ (অফিস)",
@@ -232,8 +225,7 @@ function NoticeRow({ row }: { row: Row }) {
         )}
         <div className="chips">
           <span className="chip chip-cat">
-            {CATEGORY_LABELS[String(row.category ?? "")] ??
-              s(row.category, "সাধারণ")}
+            {categoryLabel(String(row.category ?? "")) || "সাধারণ"}
           </span>
           {has(row.audienceClass) ? (
             <span className="chip chip-target">
@@ -267,6 +259,42 @@ function EmptyNote({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * Load-state helpers (Round 6, P1): every student screen must show a
+ * loading note while fetching, and — critically — a Bengali error with a
+ * retry button when a fetch fails. The profile screen previously spun on
+ * "প্রোফাইল লোড হচ্ছে…" forever when the request errored, because SWR
+ * `data` simply stayed undefined.
+ */
+function PanelLoading({ label = "তথ্য লোড হচ্ছে…" }: { label?: string }) {
+  return <EmptyNote>{label}</EmptyNote>;
+}
+
+function PanelError({
+  message = "তথ্য লোড করা যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।",
+  onRetry,
+}: {
+  message?: string;
+  onRetry: () => void;
+}) {
+  return (
+    <div className="note-box" role="alert">
+      <Icon d={ICONS.info} />
+      <div>
+        <div>{message}</div>
+        <button
+          className="btn btn-outline btn-sm"
+          type="button"
+          style={{ marginTop: 10 }}
+          onClick={onRetry}
+        >
+          আবার চেষ্টা করুন
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* ---------------- main page ---------------- */
 export default function StudentPortalPage() {
   const [registration, setRegistration] = useState("");
@@ -275,38 +303,35 @@ export default function StudentPortalPage() {
   const [error, setError] = useState("");
   const [loggingIn, setLoggingIn] = useState(false);
 
-  const { data: profilePayload } = useAuthSWR<ProfilePayload>(
-    token,
-    "/student/portal/profile",
-  );
-  const { data: duesPayload } = useAuthSWR<ListPayload>(
-    token,
-    "/student/finance/dues",
-  );
-  const { data: paymentsPayload } = useAuthSWR<ListPayload>(
-    token,
-    "/student/finance/payments",
-  );
-  const { data: resultsPayload } = useAuthSWR<ListPayload>(
-    token,
-    "/results/me",
-  );
-  const { data: attendancePayload } = useAuthSWR<ListPayload>(
-    token,
-    "/student/portal/attendance",
-  );
-  const { data: routinePayload } = useAuthSWR<ListPayload>(
-    token,
-    "/student/portal/routine",
-  );
-  const { data: noticesPayload } = useAuthSWR<ListPayload>(
-    token,
-    "/student/portal/notices",
-  );
-  const { data: upcomingPayload } = useAuthSWR<ListPayload>(
-    token,
-    "/student/portal/upcoming-results",
-  );
+  // Keep the full SWR responses (Round 6, P1): `error`/`isLoading` drive
+  // the per-screen loading + error + retry states below; data alone
+  // cannot distinguish "empty" from "failed".
+  const profileQ = useAuthSWR<ProfilePayload>(token, "/student/portal/profile");
+  const duesQ = useAuthSWR<ListPayload>(token, "/student/finance/dues");
+  const paymentsQ = useAuthSWR<ListPayload>(token, "/student/finance/payments");
+  const resultsQ = useAuthSWR<ListPayload>(token, "/results/me");
+  const attendanceQ = useAuthSWR<ListPayload>(token, "/student/portal/attendance");
+  const routineQ = useAuthSWR<ListPayload>(token, "/student/portal/routine");
+  const noticesQ = useAuthSWR<ListPayload>(token, "/student/portal/notices");
+  const upcomingQ = useAuthSWR<ListPayload>(token, "/student/portal/upcoming-results");
+  const profilePayload = profileQ.data;
+  const duesPayload = duesQ.data;
+  const paymentsPayload = paymentsQ.data;
+  const resultsPayload = resultsQ.data;
+  const attendancePayload = attendanceQ.data;
+  const routinePayload = routineQ.data;
+  const noticesPayload = noticesQ.data;
+  const upcomingPayload = upcomingQ.data;
+  const retryAll = () => {
+    void profileQ.mutate();
+    void duesQ.mutate();
+    void paymentsQ.mutate();
+    void resultsQ.mutate();
+    void attendanceQ.mutate();
+    void routineQ.mutate();
+    void noticesQ.mutate();
+    void upcomingQ.mutate();
+  };
 
   const profile = profilePayload?.data ?? null;
   const student: Row = profile?.student ?? {};
@@ -346,6 +371,8 @@ export default function StudentPortalPage() {
       setToken(data.data.accessToken);
       setError("");
       setTab("dashboard");
+    } catch {
+      setError("লগইন করা যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।");
     } finally {
       setLoggingIn(false);
     }
@@ -493,18 +520,39 @@ export default function StudentPortalPage() {
           </aside>
           <main className="content">
             {tab === "dashboard" && (
-              <Dashboard
-                name={name}
-                regNo={regNo}
-                profile={profile ?? {}}
-                student={student}
-                dues={dues}
-                results={results}
-                attendanceAll={attendanceAll}
-                notices={notices}
-                upcoming={upcoming}
-                go={setTab}
-              />
+              <>
+                {profileQ.error && !profilePayload ? (
+                  <PanelError
+                    message="ড্যাশবোর্ডের তথ্য লোড করা যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।"
+                    onRetry={retryAll}
+                  />
+                ) : profilePayload === undefined ? (
+                  <PanelLoading label="ড্যাশবোর্ড লোড হচ্ছে…" />
+                ) : (
+                  <>
+                    {(duesQ.error || resultsQ.error || attendanceQ.error || noticesQ.error) && (
+                      <div style={{ marginBottom: 16 }}>
+                        <PanelError
+                          message="কিছু তথ্য লোড করা যায়নি — নিচের তথ্য অসম্পূর্ণ হতে পারে।"
+                          onRetry={retryAll}
+                        />
+                      </div>
+                    )}
+                    <Dashboard
+                      name={name}
+                      regNo={regNo}
+                      profile={profile ?? {}}
+                      student={student}
+                      dues={dues}
+                      results={results}
+                      attendanceAll={attendanceAll}
+                      notices={notices}
+                      upcoming={upcoming}
+                      go={setTab}
+                    />
+                  </>
+                )}
+              </>
             )}
             {tab === "results" && (
               <>
@@ -513,14 +561,23 @@ export default function StudentPortalPage() {
                   প্রকাশিত সব পরীক্ষার ফলাফল — যেকোনো পরীক্ষার বিস্তারিত
                   মার্কশিট দেখতে &quot;বিস্তারিত&quot; চাপুন।
                 </p>
-                <ResultsPanel
-                  results={results}
-                  upcoming={upcoming}
-                  profile={profile ?? {}}
-                  student={student}
-                  name={name}
-                  regNo={regNo}
-                />
+                {resultsQ.error && !resultsPayload ? (
+                  <PanelError
+                    message="ফলাফল লোড করা যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।"
+                    onRetry={() => void resultsQ.mutate()}
+                  />
+                ) : resultsPayload === undefined ? (
+                  <PanelLoading label="ফলাফল লোড হচ্ছে…" />
+                ) : (
+                  <ResultsPanel
+                    results={results}
+                    upcoming={upcoming}
+                    profile={profile ?? {}}
+                    student={student}
+                    name={name}
+                    regNo={regNo}
+                  />
+                )}
               </>
             )}
             {tab === "fees" && (
@@ -530,14 +587,26 @@ export default function StudentPortalPage() {
                   সব ফি ইভেন্ট, পরিশোধের অবস্থা ও রশিদ — বকেয়া থাকলে স্কুল
                   অফিসে গিয়ে পরিশোধ করুন।
                 </p>
-                <FeesPanel
-                  dues={dues}
-                  payments={payments}
-                  profile={profile ?? {}}
-                  student={student}
-                  name={name}
-                  regNo={regNo}
-                />
+                {(duesQ.error && !duesPayload) || (paymentsQ.error && !paymentsPayload) ? (
+                  <PanelError
+                    message="ফি-এর তথ্য লোড করা যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।"
+                    onRetry={() => {
+                      void duesQ.mutate();
+                      void paymentsQ.mutate();
+                    }}
+                  />
+                ) : duesPayload === undefined || paymentsPayload === undefined ? (
+                  <PanelLoading label="ফি-এর তথ্য লোড হচ্ছে…" />
+                ) : (
+                  <FeesPanel
+                    dues={dues}
+                    payments={payments}
+                    profile={profile ?? {}}
+                    student={student}
+                    name={name}
+                    regNo={regNo}
+                  />
+                )}
               </>
             )}
             {tab === "attendance" && (
@@ -547,7 +616,16 @@ export default function StudentPortalPage() {
                   মাসভিত্তিক উপস্থিতির ক্যালেন্ডার — শ্রেণি শিক্ষক প্রতিদিন
                   হাজিরা নথিভুক্ত করেন।
                 </p>
-                <AttendancePanel token={token} allRows={attendanceAll} />
+                {attendanceQ.error && !attendancePayload ? (
+                  <PanelError
+                    message="হাজিরার তথ্য লোড করা যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।"
+                    onRetry={() => void attendanceQ.mutate()}
+                  />
+                ) : attendancePayload === undefined ? (
+                  <PanelLoading label="হাজিরা লোড হচ্ছে…" />
+                ) : (
+                  <AttendancePanel token={token} allRows={attendanceAll} />
+                )}
               </>
             )}
             {tab === "routine" && (
@@ -558,11 +636,23 @@ export default function StudentPortalPage() {
                     ? `${String(profileInfo.classNameBn)}-এর ক্লাস রুটিন ও তোমার জন্য প্রযোজ্য নোটিশ।`
                     : "তোমার ক্লাস রুটিন ও তোমার জন্য প্রযোজ্য নোটিশ।"}
                 </p>
-                <RoutinePanel
-                  rows={routineRows}
-                  notices={notices}
-                  message={routinePayload?.message}
-                />
+                {(routineQ.error && !routinePayload) || (noticesQ.error && !noticesPayload) ? (
+                  <PanelError
+                    message="রুটিন ও নোটিশ লোড করা যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।"
+                    onRetry={() => {
+                      void routineQ.mutate();
+                      void noticesQ.mutate();
+                    }}
+                  />
+                ) : routinePayload === undefined || noticesPayload === undefined ? (
+                  <PanelLoading label="রুটিন ও নোটিশ লোড হচ্ছে…" />
+                ) : (
+                  <RoutinePanel
+                    rows={routineRows}
+                    notices={notices}
+                    message={routinePayload?.message}
+                  />
+                )}
               </>
             )}
             {tab === "profile" && (
@@ -572,7 +662,20 @@ export default function StudentPortalPage() {
                   ভর্তির সময় দেওয়া সম্পূর্ণ তথ্য — এখানে শুধু দেখা যায়,
                   বদলানো যায় না।
                 </p>
-                <ProfilePanel profile={profile ?? {}} loaded={profilePayload !== undefined} name={name} regNo={regNo} />
+                {profileQ.error ? (
+                  <PanelError
+                    message="প্রোফাইল লোড করা যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।"
+                    onRetry={() => void profileQ.mutate()}
+                  />
+                ) : profilePayload === undefined ? (
+                  <PanelLoading label="প্রোফাইল লোড হচ্ছে…" />
+                ) : profile === null ? (
+                  <EmptyNote>
+                    তোমার প্রোফাইল পাওয়া যায়নি। স্কুল অফিসে যোগাযোগ করো।
+                  </EmptyNote>
+                ) : (
+                  <ProfilePanel profile={profile} name={name} regNo={regNo} />
+                )}
               </>
             )}
           </main>
@@ -1351,13 +1454,22 @@ function AttendancePanel({
     [monthsFromData, currentYm],
   );
   const [ym, setYm] = useState<string | null>(null);
-  const activeYm =
-    ym && months.includes(ym)
-      ? ym
-      : (monthsFromData[monthsFromData.length - 1] ?? currentYm);
+  // Any month may be selected (prev/next navigation is not limited to
+  // months that already have records — Round 6, P8).
+  const activeYm = ym ?? monthsFromData[monthsFromData.length - 1] ?? currentYm;
+  const stepMonth = (delta: number) => {
+    const [y, m] = activeYm.split("-").map(Number);
+    const d = new Date(Date.UTC(y, (m - 1) + delta, 1));
+    const next = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
+    setYm(next);
+  };
 
   // Month-scoped fetch — the backend filters attendance by ?month=YYYY-MM.
-  const { data: monthPayload } = useAuthSWR<ListPayload>(
+  const {
+    data: monthPayload,
+    error: monthError,
+    mutate: monthMutate,
+  } = useAuthSWR<ListPayload>(
     token,
     `/student/portal/attendance?month=${activeYm}`,
   );
@@ -1413,6 +1525,26 @@ function AttendancePanel({
     <>
       <div className="toolbar">
         <div className="month-switch" role="group" aria-label="মাস নির্বাচন">
+          <button
+            type="button"
+            aria-label="আগের মাস"
+            onClick={() => stepMonth(-1)}
+          >
+            ‹ আগের মাস
+          </button>
+          <button type="button" className="active" aria-current="true">
+            {bnMonthYear(`${activeYm}-01`)}
+          </button>
+          <button
+            type="button"
+            aria-label="পরের মাস"
+            disabled={activeYm >= currentYm}
+            onClick={() => stepMonth(1)}
+          >
+            পরের মাস ›
+          </button>
+        </div>
+        <div className="month-switch" role="group" aria-label="রেকর্ড থাকা মাসসমূহ" style={{ marginLeft: 10 }}>
           {months.map((m) => (
             <button
               key={m}
@@ -1425,6 +1557,14 @@ function AttendancePanel({
           ))}
         </div>
       </div>
+      {monthError && (
+        <div style={{ marginBottom: 14 }}>
+          <PanelError
+            message="এই মাসের হাজিরা লোড করা যায়নি।"
+            onRetry={() => void monthMutate()}
+          />
+        </div>
+      )}
       <div className="sum-strip num">
         <div className="sum-cell"><div className="l">মোট ক্লাস দিবস</div><div className="v">{toBn(rows.length)} দিন</div></div>
         <div className="sum-cell green"><div className="l">উপস্থিত</div><div className="v">{toBn(present)} দিন</div></div>
@@ -1592,18 +1732,18 @@ function RoutinePanel({
 /* ---------------- profile (view-only) ---------------- */
 function ProfilePanel({
   profile,
-  loaded,
   name,
   regNo,
 }: {
   profile: ProfileInfo;
-  loaded: boolean;
   name: string;
   regNo: string;
 }) {
+  // Rendered only after the profile fetch has resolved (loading / error /
+  // not-found states are handled by the parent — Round 6, P1), so this
+  // panel can never sit on a perpetual loading message again.
   const student: Row = profile?.student ?? {};
   const user: Row = profile?.user ?? {};
-  if (!loaded) return <EmptyNote>প্রোফাইল লোড হচ্ছে…</EmptyNote>;
 
   const classSectionRoll = [
     has(profile.classNameBn) ? String(profile.classNameBn) : null,

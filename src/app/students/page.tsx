@@ -9,6 +9,15 @@ const BOOK_ICON = (
   <svg className="icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13ZM4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5" /></svg>
 );
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "ছাত্র তালিকা",
+  description: "শ্রেণি ও শাখাভিত্তিক শিক্ষার্থীদের তালিকা।",
+  alternates: { canonical: "/students" },
+  openGraph: { title: "ছাত্র তালিকা", description: "শ্রেণি ও শাখাভিত্তিক শিক্ষার্থীদের তালিকা।", url: "/students" },
+};
+
 export default async function StudentsPage() {
   const [homePayload, studentsPayload] = await Promise.all([
     publicApi<HomeData>("/public/content/home"),

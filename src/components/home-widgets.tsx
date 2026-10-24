@@ -4,13 +4,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toBn } from "@/lib/bn";
+import { ImagePlaceholder } from "@/components/image-placeholder";
 
-type Banner = { imageUrl: string; titleBn: string; captionBn: string | null };
+type Banner = { imageUrl: string | null; titleBn: string; captionBn: string | null };
 
 export function HeroSlider({ banners }: { banners: Banner[] }) {
   const slides: Banner[] = banners.length
     ? banners
-    : [{ imageUrl: "https://placehold.co/1200x450/0F3151/FFFFFF?text=School", titleBn: "আদর্শ মডেল উচ্চ বিদ্যালয়", captionBn: "মানসম্মত শিক্ষা বিস্তারে অঙ্গীকারবদ্ধ একটি ঐতিহ্যবাহী শিক্ষাপ্রতিষ্ঠান।" }];
+    : [{ imageUrl: null, titleBn: "আদর্শ মডেল উচ্চ বিদ্যালয়", captionBn: "মানসম্মত শিক্ষা বিস্তারে অঙ্গীকারবদ্ধ একটি ঐতিহ্যবাহী শিক্ষাপ্রতিষ্ঠান।" }];
   const [cur, setCur] = useState(0);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -30,7 +31,11 @@ export function HeroSlider({ banners }: { banners: Banner[] }) {
       <div className="slider" onMouseEnter={() => { if (timer.current) clearInterval(timer.current); }} onMouseLeave={restart}>
         {slides.map((b, i) => (
           <figure key={i} className={i === cur ? "slide on" : "slide"} style={{ margin: 0 }}>
-            <img src={b.imageUrl} alt={b.titleBn} loading={i === 0 ? undefined : "lazy"} />
+            {b.imageUrl ? (
+              <img src={b.imageUrl} alt={b.titleBn} loading={i === 0 ? undefined : "lazy"} />
+            ) : (
+              <ImagePlaceholder label={b.titleBn} />
+            )}
             <figcaption>
               <h3>{b.titleBn}</h3>
               {b.captionBn && <p>{b.captionBn}</p>}

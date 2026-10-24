@@ -5,6 +5,15 @@ import NewsBrowser, { type NewsRow } from "./news-browser";
 
 type Response = { data: NewsRow[] };
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "খবর",
+  description: "বিদ্যালয়ের সর্বশেষ খবর ও সংবাদসমূহ।",
+  alternates: { canonical: "/news" },
+  openGraph: { title: "খবর", description: "বিদ্যালয়ের সর্বশেষ খবর ও সংবাদসমূহ।", url: "/news" },
+};
+
 export default async function NewsPage() {
   const payload = await publicApi<Response>("/public/content/news");
   const rows = payload?.data ?? [];

@@ -17,6 +17,15 @@ function stripTags(value: string): string {
   return value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 }
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "অনুষ্ঠান",
+  description: "বিদ্যালয়ের আসন্ন ও অতীত অনুষ্ঠানসমূহের তালিকা।",
+  alternates: { canonical: "/events" },
+  openGraph: { title: "অনুষ্ঠান", description: "বিদ্যালয়ের আসন্ন ও অতীত অনুষ্ঠানসমূহের তালিকা।", url: "/events" },
+};
+
 export default async function EventsPage() {
   const payload = await publicApi<Response>("/public/content/events");
   const rows = payload?.data ?? [];

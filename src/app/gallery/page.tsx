@@ -3,7 +3,14 @@ import PublicShell from "@/components/site-chrome";
 import { publicApi, type GalleriesResponse } from "@/lib/api";
 import { GalleryClient, type GalleryAlbum } from "./gallery-client";
 
-const FALLBACK_COVER = "https://placehold.co/600x450/21699D/FFFFFF?text=Gallery";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "ফটো গ্যালারি",
+  description: "বিদ্যালয়ের বিভিন্ন অনুষ্ঠান ও কার্যক্রমের ছবির গ্যালারি।",
+  alternates: { canonical: "/gallery" },
+  openGraph: { title: "ফটো গ্যালারি", description: "বিদ্যালয়ের বিভিন্ন অনুষ্ঠান ও কার্যক্রমের ছবির গ্যালারি।", url: "/gallery" },
+};
 
 export default async function GalleryPage() {
   const payload = await publicApi<GalleriesResponse>("/public/content/galleries");
@@ -21,7 +28,7 @@ export default async function GalleryPage() {
       id: row.id,
       title: row.titleBn,
       description: row.descriptionBn ?? null,
-      coverUrl: row.coverUrl ?? items[0]?.imageUrl ?? FALLBACK_COVER,
+      coverUrl: row.coverUrl ?? items.find((item) => item.imageUrl)?.imageUrl ?? null,
       photoCount: items.length,
       photos,
     };

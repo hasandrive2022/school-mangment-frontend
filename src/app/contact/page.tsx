@@ -23,6 +23,15 @@ function ContactLoading() {
   return <div className="contact-loading" aria-hidden="true" />;
 }
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "যোগাযোগ",
+  description: "বিদ্যালয়ের ঠিকানা, ফোন, ইমেইল এবং বার্তা পাঠানোর ফর্ম।",
+  alternates: { canonical: "/contact" },
+  openGraph: { title: "যোগাযোগ", description: "বিদ্যালয়ের ঠিকানা, ফোন, ইমেইল এবং বার্তা পাঠানোর ফর্ম।", url: "/contact" },
+};
+
 export default function ContactPage() {
   return (
     <PublicShell>

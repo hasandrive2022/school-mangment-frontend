@@ -3,7 +3,9 @@
 
 import { useState } from "react";
 import { bnDate } from "@/lib/bn";
+import { categoryLabel } from "@/lib/categories";
 import { sanitizeHtml } from "@/lib/sanitize-html";
+import { ImagePlaceholder } from "@/components/image-placeholder";
 
 export type NewsRow = {
   id: string;
@@ -16,8 +18,6 @@ export type NewsRow = {
   body?: string | null;
   category?: string | null;
 };
-
-const FALLBACK_IMG = "https://placehold.co/640x360/21699D/FFFFFF?text=News";
 
 function CalendarIcon() {
   return (
@@ -41,13 +41,17 @@ export default function NewsBrowser({ rows }: { rows: NewsRow[] }) {
         </button>
         <article className="card" style={{ padding: 0, overflow: "hidden" }}>
           <div className="detail-hero" style={{ borderRadius: 0, boxShadow: "none", margin: 0 }}>
-            <img src={selected.imageUrl ?? FALLBACK_IMG} alt={selected.titleBn} />
+            {selected.imageUrl ? (
+              <img src={selected.imageUrl} alt={selected.titleBn} />
+            ) : (
+              <ImagePlaceholder label={selected.titleBn} />
+            )}
           </div>
           <div style={{ padding: "26px 28px" }}>
             <span className="news-date">
               <CalendarIcon />
               {selected.publishedAt ? bnDate(selected.publishedAt) : ""}
-              {selected.category ? ` · ${selected.category}` : ""}
+              {selected.category ? ` · ${categoryLabel(selected.category)}` : ""}
             </span>
             <h2 style={{ fontSize: 23, color: "var(--p800)", margin: "8px 0 14px" }}>{selected.titleBn}</h2>
             <div className="prose">
@@ -68,7 +72,11 @@ export default function NewsBrowser({ rows }: { rows: NewsRow[] }) {
       {rows.map((item) => (
         <article className="news-card" key={item.id} onClick={() => setSelected(item)}>
           <div className="im">
-            <img src={item.imageUrl ?? FALLBACK_IMG} alt={item.titleBn} loading="lazy" />
+            {item.imageUrl ? (
+              <img src={item.imageUrl} alt={item.titleBn} loading="lazy" />
+            ) : (
+              <ImagePlaceholder label={item.titleBn} />
+            )}
           </div>
           <div className="bd">
             <span className="news-date">

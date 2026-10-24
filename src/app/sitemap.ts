@@ -1,25 +1,38 @@
 import type { MetadataRoute } from "next";
 import { publicApi } from "@/lib/api";
+import { getSiteUrl } from "@/lib/site-url";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+  const base = getSiteUrl();
   const pages = await publicApi<{
     data?: Array<{ slug: string; updatedAt?: string }>;
   }>("/public/content/pages");
   const staticRoutes = [
     "",
     "/about",
-    "/admission",
-    "/contact",
+    "/at-a-glance",
+    "/message",
+    "/teachers",
+    "/committee",
+    "/students",
+    "/meritorious",
     "/notices",
     "/news",
     "/events",
+    "/admission",
+    "/result-search",
+    "/results",
+    "/public-attendance",
+    "/routine",
+    "/holidays",
     "/gallery",
+    "/video-gallery",
     "/downloads",
     "/links",
-    "/results",
+    "/compliance",
+    "/contact",
+    "/club",
     "/receipt-verify",
-    "/public-attendance",
   ].map((path) => ({
     url: `${base}${path}`,
     changeFrequency: "weekly" as const,

@@ -54,6 +54,15 @@ const SECTIONS: Section[] = [
   },
 ];
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "তথ্য অধিকার ও অনলাইন অভিযোগ",
+  description: "তথ্য অধিকার (RTI), সিটিজেন চার্টার, বার্ষিক কর্মসম্পাদনা (APA), শুদ্ধাচার (NIS) এবং অনলাইনে অভিযোগ দাখিল (GRS)।",
+  alternates: { canonical: "/compliance" },
+  openGraph: { title: "তথ্য অধিকার ও অনলাইন অভিযোগ", description: "তথ্য অধিকার (RTI), সিটিজেন চার্টার, বার্ষিক কর্মসম্পাদনা (APA), শুদ্ধাচার (NIS) এবং অনলাইনে অভিযোগ দাখিল (GRS)।", url: "/compliance" },
+};
+
 export default async function CompliancePage() {
   const payload = await publicApi<PagesResponse>("/public/content/pages");
   const pages = payload?.data ?? [];

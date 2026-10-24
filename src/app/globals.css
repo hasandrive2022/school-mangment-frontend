@@ -2752,3 +2752,13 @@ body {
 @import "./design-a.css";
 @import "./design-b.css";
 @import "./design-c.css";
+
+/* Round 6 (P5): skeleton chrome bars — no fallback text/values while the
+   real site settings stream in. */
+.dsite .chrome-sk{display:inline-block;border-radius:6px;background:linear-gradient(90deg,var(--p100),var(--p50),var(--p100));background-size:200% 100%;animation:premium-shimmer 1.5s ease-in-out infinite}
+.dsite .chrome-sk-sm{width:130px;height:14px}
+.dsite .chrome-sk-logo{width:56px;height:56px;border-radius:50%}
+.dsite .chrome-sk-title{display:block;width:280px;max-width:60vw;height:22px;margin-bottom:8px}
+.dsite .chrome-sk-sub{display:block;width:180px;max-width:40vw;height:13px}
+.dsite .chrome-sk-nav{width:74px;height:16px;margin:10px 0}
+.dsite .skeleton-field,.dsite .skeleton-button{background:linear-gradient(90deg,var(--p100),var(--p50),var(--p100));background-size:200% 100%;animation:premium-shimmer 1.5s ease-in-out infinite}

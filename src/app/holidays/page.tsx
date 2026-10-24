@@ -57,6 +57,15 @@ function weekdayCell(fromDate: string, toDate: string): string {
   return `${fmtWeekdayShort(from)}–${fmtWeekdayShort(to)}`;
 }
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "ছুটির তালিকা",
+  description: "বছরের সরকারি ছুটি ও বিদ্যালয়ের ছুটির সম্পূর্ণ তালিকা।",
+  alternates: { canonical: "/holidays" },
+  openGraph: { title: "ছুটির তালিকা", description: "বছরের সরকারি ছুটি ও বিদ্যালয়ের ছুটির সম্পূর্ণ তালিকা।", url: "/holidays" },
+};
+
 export default async function HolidaysPage() {
   const [holidaysPayload, pagesPayload] = await Promise.all([
     publicApi<HolidaysResponse>("/public/content/holidays"),

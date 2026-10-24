@@ -8,6 +8,15 @@ type PagesResponse = {
   data: Array<{ id: string; slug: string; titleBn: string; body: string }>;
 };
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "বিদ্যালয় পরিচিতি",
+  description: "বিদ্যালয়ের ইতিহাস, প্রতিষ্ঠার সাল, EIIN, ঠিকানা ও সাধারণ তথ্য।",
+  alternates: { canonical: "/about" },
+  openGraph: { title: "বিদ্যালয় পরিচিতি", description: "বিদ্যালয়ের ইতিহাস, প্রতিষ্ঠার সাল, EIIN, ঠিকানা ও সাধারণ তথ্য।", url: "/about" },
+};
+
 export default async function AboutPage() {
   const [pagesPayload, homePayload] = await Promise.all([
     publicApi<PagesResponse>("/public/content/pages"),

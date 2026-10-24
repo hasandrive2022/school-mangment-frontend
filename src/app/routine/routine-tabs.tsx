@@ -35,11 +35,20 @@ export function RoutineTabs({
   const [classId, setClassId] = useState<string>("");
   const activeClassId = classId || classOptions[0]?.id || "";
 
+  // Section options are fully data-driven (Round 6, P9): every section
+  // present in the selected class's rows appears — including sections
+  // whose rows carry a name but no sectionId (keyed by name then), which
+  // previously dropped e.g. শাখা খ from the filter.
+  const sectionKey = (row: RoutineClassRow): string | null =>
+    row.sectionId ?? (row.sectionNameBn ? `name:${row.sectionNameBn}` : null);
+
   const sectionOptions: Option[] = useMemo(() => {
     const seen = new Map<string, string>();
     for (const row of classRows) {
-      if (row.classId !== activeClassId || !row.sectionId) continue;
-      if (!seen.has(row.sectionId)) seen.set(row.sectionId, row.sectionNameBn ?? "শাখা");
+      if (row.classId !== activeClassId) continue;
+      const key = sectionKey(row);
+      if (!key) continue;
+      if (!seen.has(key)) seen.set(key, row.sectionNameBn ?? "শাখা");
     }
     return [...seen.entries()].map(([id, label]) => ({ id, label }));
   }, [classRows, activeClassId]);
@@ -51,7 +60,7 @@ export function RoutineTabs({
       classRows.filter(
         (row) =>
           row.classId === activeClassId &&
-          (sectionId === "all" || row.sectionId === sectionId),
+          (sectionId === "all" || sectionKey(row) === sectionId),
       ),
     [classRows, activeClassId, sectionId],
   );

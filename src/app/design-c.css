@@ -292,3 +292,35 @@
 .dsite .msg-photo .msg-photo-txt span{font-size:96px;font-weight:700;color:var(--p600);line-height:1}
 /* Round 4: admission status result card rows */
 .dsite .status-result-card{max-width:720px;margin:0 auto 22px;padding:24px}
+
+/* Round 7: null-image placeholder (banners, gallery, news, videos).
+   Same treatment as the existing missing-photo panels above
+   (.pcard .ph.ph-txt / .msg-photo .msg-photo-txt): gradient panel with the
+   title's first letter, large and bold. Per-surface rules below only give
+   the panel the size/aspect the replaced <img> had in that surface. */
+.dsite .img-txt{display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:linear-gradient(135deg,var(--p100),var(--p50))}
+.dsite .img-txt>span{font-size:64px;font-weight:700;color:var(--p600);line-height:1}
+/* Hero banner: fills the slide (the .slider itself is navy); the panel uses
+   the .pbanner navy gradient, and the banner title still shows in the
+   slide's figcaption below it. */
+.dsite .slide .img-txt{position:absolute;inset:0;background:linear-gradient(120deg,var(--p900),var(--p800) 55%,var(--p700))}
+.dsite .slide .img-txt>span{font-size:110px;color:rgba(255,255,255,.22)}
+/* Homepage news list thumbnail (was an 86x64 img) */
+.dsite .news-item .img-txt{width:86px;height:64px;border-radius:6px;flex:none}
+.dsite .news-item .img-txt>span{font-size:26px}
+/* Homepage gallery tile + video box (absolute fill of the aspect-ratio figure) */
+.dsite .gal .img-txt{position:absolute;inset:0}
+.dsite .video-box .img-txt{position:absolute;inset:0}
+/* Card image wells: the well already carries the aspect ratio, the panel
+   repeats it so it fills the well exactly. */
+.dsite .news-card .im .img-txt{aspect-ratio:16/9}
+.dsite .album-card .im .img-txt{aspect-ratio:4/3}
+.dsite .video-card .im .img-txt{aspect-ratio:16/9}
+/* News detail hero (was a 16/7 img) */
+.dsite .detail-hero .img-txt{aspect-ratio:16/7}
+.dsite .detail-hero .img-txt>span{font-size:84px}
+/* Gallery photo grid items (was a 4/3 img inside a button) */
+.dsite .photo-grid .img-txt{aspect-ratio:4/3}
+/* Gallery lightbox (was an img on the navy .overlay figure background) */
+.dsite .overlay figure .img-txt{min-height:320px;background:linear-gradient(120deg,var(--p900),var(--p800) 55%,var(--p700))}
+.dsite .overlay figure .img-txt>span{font-size:96px;color:rgba(255,255,255,.35)}

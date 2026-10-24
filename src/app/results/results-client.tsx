@@ -6,6 +6,19 @@ import { useRouter } from "next/navigation";
 import type { PublicExam, PublicResultRow } from "@/lib/api";
 import { toBn } from "@/lib/bn";
 
+/**
+ * Pass/fail derived from the grading outcome (Round 6, P7): a student
+ * with a passing letter grade and GPA > 0 (e.g. GPA 3.20 / A-) is উত্তীর্ণ
+ * even if a stale backend isPassed flag says otherwise. "F" always fails.
+ */
+function derivedPassed(row: PublicResultRow): boolean {
+  const gpa = Number.parseFloat(row.gpa);
+  const letter = row.letter?.trim().toUpperCase();
+  if (letter && letter !== "F" && Number.isFinite(gpa) && gpa > 0) return true;
+  if (letter === "F") return false;
+  return row.isPassed;
+}
+
 function examLabel(exam: PublicExam): string {
   const parts = [exam.nameBn];
   if (exam.classNameBn) parts.push(exam.classNameBn);
@@ -27,22 +40,51 @@ export function ResultsClient({
   classId: string | null;
 }) {
   const router = useRouter();
-  const [selExam, setSelExam] = useState<string>(examId ?? "");
+  // Filter defaults (Round 6, P7): the exam selector must reflect the
+  // exam whose rows are actually shown (the server resolves the latest
+  // published exam and returns its id) — never an empty value that makes
+  // the browser display the first option while state says otherwise.
+  const [selExam, setSelExam] = useState<string>(examId ?? exams[0]?.id ?? "");
   const [selClass, setSelClass] = useState<string>(classId ?? "all");
 
+  // Class options are scoped to the SELECTED exam (each exam belongs to
+  // one class) so the class filter can never contradict the exam filter.
   const classOptions = useMemo(() => {
     const seen = new Map<string, string>();
     for (const exam of exams) {
+      if (selExam && exam.id !== selExam) continue;
       if (exam.classId && !seen.has(exam.classId)) {
         seen.set(exam.classId, exam.classNameBn ?? "শ্রেণি");
       }
     }
     return [...seen.entries()].map(([id, label]) => ({ id, label }));
-  }, [exams]);
+  }, [exams, selExam]);
+
+  // Merit (মেধাক্রম) — dense rank by total marks within exam+class,
+  // computed here so the column is never all-zero (Round 6, P7). Rows
+  // are already a single exam's set; group by class so a mixed-class
+  // view still ranks within each class.
+  const rankedRows = useMemo(() => {
+    const totalsByClass = new Map<string, number[]>();
+    for (const row of rows) {
+      const key = row.classId ?? "";
+      const totals = totalsByClass.get(key) ?? [];
+      if (!totals.includes(row.totalMarks)) totals.push(row.totalMarks);
+      totalsByClass.set(key, totals);
+    }
+    for (const totals of totalsByClass.values()) {
+      totals.sort((a, b) => b - a);
+    }
+    return rows.map((row) => ({
+      row,
+      merit: (totalsByClass.get(row.classId ?? "") ?? []).indexOf(row.totalMarks) + 1,
+      passed: derivedPassed(row),
+    }));
+  }, [rows]);
 
   const summary = useMemo(() => {
     const total = rows.length;
-    const passed = rows.filter((r) => r.isPassed).length;
+    const passed = rankedRows.filter((r) => r.passed).length;
     const gpaFive = rows.filter((r) => Number.parseFloat(r.gpa) >= 5).length;
     const avg =
       total > 0
@@ -50,7 +92,7 @@ export function ResultsClient({
         : 0;
     const passPct = total > 0 ? (passed / total) * 100 : 0;
     return { total, passed, gpaFive, avg, passPct };
-  }, [rows]);
+  }, [rows, rankedRows]);
 
   if (exams.length === 0) {
     return (
@@ -80,7 +122,10 @@ export function ResultsClient({
             <select
               id="rlExam"
               value={selExam}
-              onChange={(e) => setSelExam(e.target.value)}
+              onChange={(e) => {
+                setSelExam(e.target.value);
+                setSelClass("all");
+              }}
             >
               {exams.map((exam) => (
                 <option key={exam.id} value={exam.id}>
@@ -156,10 +201,10 @@ export function ResultsClient({
                 </tr>
               </thead>
               <tbody>
-                {rows.map((row, index) => (
+                {rankedRows.map(({ row, merit, passed }, index) => (
                   <tr key={`${row.registrationNumber ?? row.nameBn}-${index}`}>
                     <td data-label="মেধাক্রম" className="num">
-                      {row.meritPosition != null ? toBn(row.meritPosition) : "—"}
+                      {toBn(merit)}
                     </td>
                     <td className="cell-main" data-label="শিক্ষার্থী">
                       <div className="cell-person">
@@ -176,8 +221,8 @@ export function ResultsClient({
                     </td>
                     <td data-label="গ্রেড">{row.letter}</td>
                     <td data-label="অবস্থা">
-                      <span className={`chip ${row.isPassed ? "chip-green" : "chip-red"}`}>
-                        {row.isPassed ? "উত্তীর্ণ" : "অনুত্তীর্ণ"}
+                      <span className={`chip ${passed ? "chip-green" : "chip-red"}`}>
+                        {passed ? "উত্তীর্ণ" : "অনুত্তীর্ণ"}
                       </span>
                     </td>
                     <td data-label="মার্কশিট">

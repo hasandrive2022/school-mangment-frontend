@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { categoryLabel } from "@/lib/categories";
 
 export type DownloadRow = {
   id: string;
@@ -34,7 +35,7 @@ export default function DownloadsBrowser({ rows }: { rows: DownloadRow[] }) {
             className={active === category ? "fchip on" : "fchip"}
             onClick={() => setActive(category)}
           >
-            {category}
+            {categoryLabel(category)}
           </button>
         ))}
       </div>
@@ -47,7 +48,7 @@ export default function DownloadsBrowser({ rows }: { rows: DownloadRow[] }) {
               </span>
               <span style={{ flex: 1, minWidth: 0 }}>
                 <b>{item.titleBn}</b>
-                {item.category && <small>{item.category}</small>}
+                {item.category && <small>{categoryLabel(item.category)}</small>}
               </span>
               <a className="btn btn-primary btn-sm" href={item.fileUrl} target="_blank" rel="noopener">
                 <svg className="icon" viewBox="0 0 24 24" width="15"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3" /></svg>

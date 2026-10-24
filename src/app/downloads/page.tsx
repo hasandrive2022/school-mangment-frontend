@@ -5,6 +5,15 @@ import DownloadsBrowser, { type DownloadRow } from "./downloads-browser";
 
 type Response = { data: DownloadRow[] };
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "ডাউনলোড",
+  description: "ভর্তি ফরম, সিলেবাসসহ প্রয়োজনীয় ফাইল ও নথি ডাউনলোড করুন।",
+  alternates: { canonical: "/downloads" },
+  openGraph: { title: "ডাউনলোড", description: "ভর্তি ফরম, সিলেবাসসহ প্রয়োজনীয় ফাইল ও নথি ডাউনলোড করুন।", url: "/downloads" },
+};
+
 export default async function DownloadsPage() {
   const payload = await publicApi<Response>("/public/content/downloads");
   const rows = payload?.data ?? [];

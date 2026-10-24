@@ -2,15 +2,16 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { toBn } from "@/lib/bn";
+import { ImagePlaceholder } from "@/components/image-placeholder";
 
 export type GalleryAlbum = {
   id: string;
   title: string;
   description: string | null;
-  coverUrl: string;
+  coverUrl: string | null;
   /** Real item count from the API (0 when the album has no items yet). */
   photoCount: number;
-  photos: Array<{ url: string; caption: string }>;
+  photos: Array<{ url: string | null; caption: string }>;
 };
 
 export function GalleryClient({ albums }: { albums: GalleryAlbum[] }) {
@@ -54,8 +55,12 @@ export function GalleryClient({ albums }: { albums: GalleryAlbum[] }) {
               onClick={() => setOpenAlbumId(a.id)}
             >
               <span className="im">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={a.coverUrl} alt={a.title} loading="lazy" />
+                {a.coverUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={a.coverUrl} alt={a.title} loading="lazy" />
+                ) : (
+                  <ImagePlaceholder label={a.title} />
+                )}
                 {a.photoCount > 0 && (
                   <span className="cnt">{toBn(a.photoCount)}টি ছবি</span>
                 )}
@@ -90,11 +95,15 @@ export function GalleryClient({ albums }: { albums: GalleryAlbum[] }) {
                 <button
                   type="button"
                   className="photo-item"
-                  key={`${photo.url}-${index}`}
+                  key={`${photo.url ?? "no-image"}-${index}`}
                   onClick={() => setLightbox(index)}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={photo.url} alt={photo.caption} loading="lazy" />
+                  {photo.url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={photo.url} alt={photo.caption} loading="lazy" />
+                  ) : (
+                    <ImagePlaceholder label={photo.caption} />
+                  )}
                   <span className="cap">{photo.caption}</span>
                 </button>
               ))}
@@ -112,8 +121,12 @@ export function GalleryClient({ albums }: { albums: GalleryAlbum[] }) {
               <svg className="icon" viewBox="0 0 24 24" width="18"><path d="M18 6 6 18M6 6l12 12" /></svg>
             </button>
             <figure>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={photos[lightbox].url} alt={photos[lightbox].caption} />
+              {photos[lightbox].url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={photos[lightbox].url} alt={photos[lightbox].caption} />
+              ) : (
+                <ImagePlaceholder label={photos[lightbox].caption} />
+              )}
               <figcaption>
                 <span>{photos[lightbox].caption}</span>
                 <span className="lb-nav">

@@ -38,7 +38,9 @@ export default function AdmissionClient({
 }: {
   infoHtml?: string | null;
 }) {
-  const [open, setOpen] = useState(false);
+  // null = settings not resolved yet (show skeleton — never flash the
+  // "ভর্তি আবেদন বর্তমানে বন্ধ" message before the real state arrives).
+  const [open, setOpen] = useState<boolean | null>(null);
   const [tracking, setTracking] = useState("");
   const [statusResult, setStatusResult] = useState<StatusResult | null>(null);
   const [statusError, setStatusError] = useState("");
@@ -138,7 +140,17 @@ export default function AdmissionClient({
           </>
         )}
 
-        {open ? (
+        {open === null ? (
+          <div className="card form-card" style={{ marginTop: 26 }} aria-busy="true" aria-live="polite">
+            <span className="sr-only">ভর্তির অবস্থা লোড হচ্ছে…</span>
+            <div className="fc-body">
+              <div className="skeleton-field" style={{ marginBottom: 14 }} />
+              <div className="skeleton-field" style={{ marginBottom: 14 }} />
+              <div className="skeleton-field" style={{ width: "55%", marginBottom: 14 }} />
+              <div className="skeleton-button" />
+            </div>
+          </div>
+        ) : open ? (
           <>
             <div className="alert alert-blue" style={{ marginTop: 26 }}>
               <svg className="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 8h.01M12 11v5" /></svg>

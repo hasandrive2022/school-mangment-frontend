@@ -1,34 +1,62 @@
 import type { Metadata, Viewport } from "next";
+import { cacheLife } from "next/cache";
 import "./globals.css";
+import { publicHome, type HomeData } from "@/lib/api";
+import { getSiteUrl } from "@/lib/site-url";
 
-export const metadata: Metadata = {
-  title: "আদর্শ মডেল উচ্চ বিদ্যালয়",
-  description: "আদর্শ মডেল উচ্চ বিদ্যালয়ের জনসাধারণের ও শিক্ষার্থী পোর্টাল",
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
-  ),
-  keywords: [
-    "আদর্শ মডেল উচ্চ বিদ্যালয়",
-    "কুড়িগ্রাম স্কুল",
-    "শিক্ষার্থী পোর্টাল",
-    "ফলাফল",
-  ],
-  openGraph: {
-    type: "website",
-    locale: "bn_BD",
-    siteName: "আদর্শ মডেল উচ্চ বিদ্যালয়",
-    title: "আদর্শ মডেল উচ্চ বিদ্যালয়",
-    description: "বিদ্যালয়ের তথ্য, নোটিশ, ফলাফল ও শিক্ষার্থী পোর্টাল",
-  },
-  twitter: {
-    card: "summary",
-    title: "আদর্শ মডেল উচ্চ বিদ্যালয়",
-    description: "বিদ্যালয়ের জনসাধারণের ও শিক্ষার্থী পোর্টাল",
-  },
-  alternates: { canonical: "/" },
-  authors: [{ name: "আদর্শ মডেল উচ্চ বিদ্যালয়" }],
-  robots: { index: true, follow: true },
-};
+/**
+ * Cached school lookup for metadata: with Cache Components enabled an
+ * uncached fetch inside generateMetadata blocks prerendering (e.g. the
+ * /_not-found route), so the school fetch is wrapped in "use cache".
+ */
+async function getSchoolForMetadata() {
+  "use cache";
+  cacheLife("hours");
+  const payload = await publicHome<HomeData>().catch(() => null);
+  return payload?.data?.school ?? null;
+}
+
+/**
+ * Root metadata (Round 6, P4): the school name comes from the public API
+ * (admin-controlled) with a safe generic fallback — never a hardcoded
+ * demo-school name. `metadataBase` uses the shared site-URL resolver so
+ * canonical / OG URLs never point at localhost in production. Child pages
+ * set only their page title; the `%s | <school>` template appends the
+ * school name.
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const school = await getSchoolForMetadata();
+  const name = school?.nameBn ?? "বিদ্যালয়";
+  const nameEn = school?.nameEn ?? "";
+  const description = `${name} — বিদ্যালয়ের তথ্য, নোটিশ, ফলাফল, ভর্তি ও শিক্ষার্থী পোর্টাল।`;
+  const siteUrl = getSiteUrl();
+
+  return {
+    title: {
+      default: name,
+      template: `%s | ${name}`,
+    },
+    description,
+    metadataBase: new URL(siteUrl),
+    keywords: [name, nameEn, "বিদ্যালয়", "শিক্ষার্থী পোর্টাল", "ফলাফল", "নোটিশ", "ভর্তি"].filter(Boolean),
+    openGraph: {
+      type: "website",
+      locale: "bn_BD",
+      siteName: name,
+      title: name,
+      description,
+      url: siteUrl,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: name,
+      description,
+    },
+    alternates: { canonical: "/" },
+    authors: [{ name }],
+    robots: { index: true, follow: true },
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: "#0f3151",

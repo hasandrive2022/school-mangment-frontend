@@ -2,8 +2,16 @@ import Link from "next/link";
 import PublicShell from "@/components/site-chrome";
 import { publicApi, type VideosResponse } from "@/lib/api";
 import { bnDate } from "@/lib/bn";
+import { ImagePlaceholder } from "@/components/image-placeholder";
 
-const FALLBACK_COVER = "https://placehold.co/800x450/0F3151/FFFFFF?text=Video";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "ভিডিও গ্যালারি",
+  description: "বিদ্যালয়ের অনুষ্ঠান ও কার্যক্রমের ভিডিও গ্যালারি।",
+  alternates: { canonical: "/video-gallery" },
+  openGraph: { title: "ভিডিও গ্যালারি", description: "বিদ্যালয়ের অনুষ্ঠান ও কার্যক্রমের ভিডিও গ্যালারি।", url: "/video-gallery" },
+};
 
 export default async function VideoGalleryPage() {
   const payload = await publicApi<VideosResponse>("/public/content/videos");
@@ -38,8 +46,12 @@ export default async function VideoGalleryPage() {
                 rel="noopener"
               >
                 <span className="im">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={row.thumbnailUrl ?? FALLBACK_COVER} alt={row.titleBn} loading="lazy" />
+                  {row.thumbnailUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={row.thumbnailUrl} alt={row.titleBn} loading="lazy" />
+                  ) : (
+                    <ImagePlaceholder label={row.titleBn} />
+                  )}
                   <span className="play">
                     <i>
                       <svg className="icon" viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5-13-7.5Z" /></svg>

@@ -16,19 +16,79 @@ type SubjectMark = {
   gpa?: number | string;
 };
 
-type ResultPayload = {
-  result?: {
-    totalMarks: number;
-    gpa: string;
-    letter: string;
-    isPassed: boolean;
-    meritPosition: number | null;
-    subjects?: SubjectMark[];
-  };
+type ResultData = {
+  totalMarks: number;
+  gpa: string;
+  letter: string;
+  isPassed: boolean;
+  meritPosition: number | null;
+  subjects?: SubjectMark[];
+};
+
+/**
+ * Result-search response contract (Round 6, P2) — coded defensively
+ * against the backend engineer's new shape:
+ *
+ *   { data: { status: "found", result: {...}, exam: {...}, student: {...}, subjects: [...] } }
+ *   { data: { status: "not-found" } }                          // unknown registration number
+ *   { data: { status: "not-published" } }                      // student exists, no published result
+ *
+ * The status/kind field is also accepted at the top level
+ * ({ status: "not-found", data: null }) or as `kind` instead of
+ * `status`, and the older shape ({ data: { result, exam } } with no
+ * status field at all) still works: a present result means "found";
+ * without any signal the fallback message is the not-found one.
+ */
+type SearchStatus = "found" | "not-found" | "not-published" | "error";
+
+type NormalizedResult = {
+  status: SearchStatus;
+  result?: ResultData;
   exam?: { nameBn: string };
   student?: { nameBn?: string; registrationNumber?: string };
   subjects?: SubjectMark[];
 };
+
+function normalizeSearchPayload(raw: unknown): NormalizedResult {
+  if (!raw || typeof raw !== "object") return { status: "error" };
+  const top = raw as Record<string, unknown>;
+  const data = (top.data ?? top) as Record<string, unknown>;
+  const statusRaw = String(top.status ?? top.kind ?? data.status ?? data.kind ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/_/g, "-");
+  const result = (data.result ?? undefined) as ResultData | undefined;
+  const exam = (data.exam ?? undefined) as { nameBn: string } | undefined;
+  const student = (data.student ?? undefined) as NormalizedResult["student"];
+  const subjects =
+    (data.subjects as SubjectMark[] | undefined) ?? result?.subjects;
+
+  if (statusRaw === "not-found" || statusRaw === "notfound" || statusRaw === "student-not-found")
+    return { status: "not-found" };
+  if (
+    statusRaw === "not-published" ||
+    statusRaw === "unpublished" ||
+    statusRaw === "result-not-published" ||
+    statusRaw === "no-published-result" ||
+    statusRaw === "nopublishedresult" ||
+    statusRaw === "pending"
+  )
+    return { status: "not-published", student };
+  if (result) return { status: "found", result, exam, student, subjects };
+  if (statusRaw === "found") return { status: "not-published", student };
+  // No explicit signal and no result: cannot distinguish — fall back to
+  // the not-found message (the new backend always sends the field).
+  return { status: "not-found" };
+}
+
+/** Pass/fail from the grading outcome itself (letter/GPA), not a stale flag. */
+function derivedPassed(result: ResultData): boolean {
+  const gpa = Number.parseFloat(String(result.gpa));
+  if (result.letter && result.letter.toUpperCase() !== "F" && Number.isFinite(gpa) && gpa > 0)
+    return true;
+  if (result.letter && result.letter.toUpperCase() === "F") return false;
+  return Boolean(result.isPassed);
+}
 
 export function ResultSearchClient({
   schoolName,
@@ -42,7 +102,7 @@ export function ResultSearchClient({
   const searchParams = useSearchParams();
   const initialReg = searchParams.get("registrationNumber") ?? "";
   const [registrationNumber, setRegistrationNumber] = useState(initialReg);
-  const [payload, setPayload] = useState<ResultPayload | null>(null);
+  const [payload, setPayload] = useState<NormalizedResult | null>(null);
   const [searched, setSearched] = useState(false);
   const [loading, setLoading] = useState(false);
   const autoRan = useRef(false);
@@ -51,11 +111,13 @@ export function ResultSearchClient({
     const value = reg.trim();
     if (!value) return;
     setLoading(true);
+    setPayload(null);
     try {
       const response = await fetch(`/api/public-results?registrationNumber=${encodeURIComponent(value)}`);
-      setPayload((await response.json()) as ResultPayload);
+      const raw: unknown = await response.json().catch(() => null);
+      setPayload(normalizeSearchPayload(raw));
     } catch {
-      setPayload(null);
+      setPayload({ status: "error" });
     } finally {
       setSearched(true);
       setLoading(false);
@@ -101,10 +163,22 @@ export function ResultSearchClient({
             </button>
           </div>
         </form>
-        {searched && !loading && !result && (
-          <div className="alert alert-red" style={{ margin: "14px 0 0" }}>
+        {searched && !loading && payload?.status === "not-found" && (
+          <div className="alert alert-red" style={{ margin: "14px 0 0" }} role="alert">
             <svg className="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 8v5M12 16.5h.01" /></svg>
-            <span>দুঃখিত — এই রেজিস্ট্রেশন নম্বরের কোনো ফলাফল পাওয়া যায়নি। নম্বরটি যাচাই করে আবার চেষ্টা করুন।</span>
+            <span>এই নম্বরের কোনো শিক্ষার্থী পাওয়া যায়নি। রেজিস্ট্রেশন নম্বরটি যাচাই করে আবার চেষ্টা করুন।</span>
+          </div>
+        )}
+        {searched && !loading && payload?.status === "not-published" && (
+          <div className="alert alert-blue" style={{ margin: "14px 0 0" }} role="status">
+            <svg className="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" /></svg>
+            <span>এই শিক্ষার্থীর ফলাফল এখনো প্রকাশিত হয়নি। ফলাফল প্রকাশিত হলে এখানেই দেখা যাবে — অনুগ্রহ করে পরে আবার চেষ্টা করুন।</span>
+          </div>
+        )}
+        {searched && !loading && payload?.status === "error" && (
+          <div className="alert alert-red" style={{ margin: "14px 0 0" }} role="alert">
+            <svg className="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 8v5M12 16.5h.01" /></svg>
+            <span>ফলাফল খুঁজতে সমস্যা হয়েছে। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।</span>
           </div>
         )}
       </div>
@@ -191,8 +265,8 @@ export function ResultSearchClient({
               <div>
                 <p style={{ margin: "0 0 4px" }}>
                   <b>ফলাফল:</b>{" "}
-                  <span style={{ color: result.isPassed ? "var(--a600)" : "var(--danger)", fontWeight: 700 }}>
-                    {result.isPassed ? "উত্তীর্ণ" : "অনুত্তীর্ণ"}
+                  <span style={{ color: derivedPassed(result) ? "var(--a600)" : "var(--danger)", fontWeight: 700 }}>
+                    {derivedPassed(result) ? "উত্তীর্ণ" : "অনুত্তীর্ণ"}
                   </span>
                 </p>
                 <p style={{ margin: 0 }}>

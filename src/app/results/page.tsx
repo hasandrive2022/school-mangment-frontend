@@ -80,6 +80,15 @@ async function ResultsContent({
   );
 }
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "শ্রেণিভিত্তিক ফলাফল",
+  description: "পরীক্ষা ও শ্রেণিভিত্তিক প্রকাশিত ফলাফলের তালিকা, মেধাক্রম ও GPA।",
+  alternates: { canonical: "/results" },
+  openGraph: { title: "শ্রেণিভিত্তিক ফলাফল", description: "পরীক্ষা ও শ্রেণিভিত্তিক প্রকাশিত ফলাফলের তালিকা, মেধাক্রম ও GPA।", url: "/results" },
+};
+
 export default function PublicResultsPage({
   searchParams,
 }: {

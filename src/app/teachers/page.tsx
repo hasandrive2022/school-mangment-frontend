@@ -3,6 +3,15 @@ import PublicShell from "@/components/site-chrome";
 import { publicApi, type PublicTeachersResponse } from "@/lib/api";
 import TeachersBrowser from "./teachers-browser";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "শিক্ষকবৃন্দ",
+  description: "বিদ্যালয়ের শিক্ষকদের তালিকা, পদবি ও বিষয়ভিত্তিক পরিচিতি।",
+  alternates: { canonical: "/teachers" },
+  openGraph: { title: "শিক্ষকবৃন্দ", description: "বিদ্যালয়ের শিক্ষকদের তালিকা, পদবি ও বিষয়ভিত্তিক পরিচিতি।", url: "/teachers" },
+};
+
 export default async function TeachersPage() {
   const payload = await publicApi<PublicTeachersResponse>("/public/teachers");
   const teachers = [...(payload?.data ?? [])].sort(

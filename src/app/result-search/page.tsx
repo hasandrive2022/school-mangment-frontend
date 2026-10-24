@@ -5,6 +5,15 @@ import { publicApi, type HomeData, type PublicExamsResponse } from "@/lib/api";
 import { ResultSearchClient } from "./result-search-client";
 import { ResultCountdown } from "./result-countdown";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "ফলাফল অনুসন্ধান",
+  description: "রেজিস্ট্রেশন নম্বর দিয়ে শিক্ষার্থীর ফলাফল ও মার্কশিট দেখুন।",
+  alternates: { canonical: "/result-search" },
+  openGraph: { title: "ফলাফল অনুসন্ধান", description: "রেজিস্ট্রেশন নম্বর দিয়ে শিক্ষার্থীর ফলাফল ও মার্কশিট দেখুন।", url: "/result-search" },
+};
+
 export default async function ResultSearchPage() {
   const [payload, examsPayload] = await Promise.all([
     publicApi<HomeData>("/public/content/home"),

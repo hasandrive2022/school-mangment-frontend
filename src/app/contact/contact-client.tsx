@@ -9,13 +9,24 @@ export type ContactSchool = {
   foundedYear?: string | null;
 };
 
+type FormStatus =
+  | { kind: "success" }
+  | { kind: "error"; message: string }
+  | null;
+
 export default function ContactClient({ school }: { school?: ContactSchool }) {
-  const [sent, setSent] = useState(false);
-  const [error, setError] = useState("");
+  // Single status state (Round 6, P3): success XOR error — the live bug
+  // showed the green success and red error messages at the same time
+  // because two independent states were set. Cleared on every submit.
+  const [status, setStatus] = useState<FormStatus>(null);
+  const [submitting, setSubmitting] = useState(false);
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError("");
-    const form = new FormData(event.currentTarget);
+    if (submitting) return;
+    const formEl = event.currentTarget;
+    setStatus(null);
+    setSubmitting(true);
+    const form = new FormData(formEl);
     const api =
       process.env.NEXT_PUBLIC_BACKEND_API_URL ??
       "https://school-mangment-backend.vercel.app/api/v1";
@@ -30,10 +41,15 @@ export default function ContactClient({ school }: { school?: ContactSchool }) {
         },
       );
       if (!response.ok) throw new Error("request failed");
-      setSent(true);
-      event.currentTarget.reset();
+      setStatus({ kind: "success" });
+      formEl.reset();
     } catch {
-      setError("বার্তা পাঠানো যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।");
+      setStatus({
+        kind: "error",
+        message: "বার্তা পাঠানো যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।",
+      });
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -108,18 +124,20 @@ export default function ContactClient({ school }: { school?: ContactSchool }) {
                 </div>
               </div>
               <div style={{ marginTop: 16 }}>
-                <button className="btn btn-primary btn-lg" type="submit">বার্তা পাঠান</button>
+                <button className="btn btn-primary btn-lg" type="submit" disabled={submitting}>
+                  {submitting ? "পাঠানো হচ্ছে…" : "বার্তা পাঠান"}
+                </button>
               </div>
-              {sent && (
-                <div className="alert alert-green" style={{ margin: "16px 0 0" }}>
+              {status?.kind === "success" && (
+                <div className="alert alert-green" style={{ margin: "16px 0 0" }} role="status">
                   <svg className="icon" viewBox="0 0 24 24"><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1" /><path d="M22 4 12 14l-3-3" /></svg>
                   <span>আপনার বার্তা গ্রহণ করা হয়েছে।</span>
                 </div>
               )}
-              {error && (
-                <div className="alert alert-red" style={{ margin: "16px 0 0" }}>
+              {status?.kind === "error" && (
+                <div className="alert alert-red" style={{ margin: "16px 0 0" }} role="alert">
                   <svg className="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 8h.01M12 11v5" /></svg>
-                  <span>{error}</span>
+                  <span>{status.message}</span>
                 </div>
               )}
             </form>

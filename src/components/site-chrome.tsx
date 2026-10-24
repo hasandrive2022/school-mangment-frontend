@@ -196,15 +196,47 @@ async function PublicShellContent({ children }: { children: ReactNode }) {
   );
 }
 
+/**
+ * Streaming fallback chrome (Round 6, P5): skeleton bars ONLY — it must
+ * never render misleading fallback values (EIIN "—", a fallback school
+ * name in an <h1>, or a single-item "হোম" nav) that then get replaced
+ * when the real settings arrive. It also keeps exactly one <h1> in the
+ * streamed document: the real header's.
+ */
 function PublicShellLoading({ children }: { children: ReactNode }) {
   return (
-    <div className="dsite">
-      <TopBar />
-      <SiteHeader />
-      <SiteNav items={[]} />
-      <Ticker items={[]} />
+    <div className="dsite" aria-busy="true">
+      <div className="topbar" aria-hidden="true">
+        <div className="container">
+          <span className="chrome-sk chrome-sk-sm" />
+          <span className="chrome-sk chrome-sk-sm" />
+        </div>
+      </div>
+      <div className="site-header" aria-hidden="true">
+        <div className="container">
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <span className="chrome-sk chrome-sk-logo" />
+            <span>
+              <span className="chrome-sk chrome-sk-title" />
+              <span className="chrome-sk chrome-sk-sub" />
+            </span>
+          </div>
+        </div>
+      </div>
+      <nav className="navbar" aria-hidden="true">
+        <div className="container" style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <span className="chrome-sk chrome-sk-nav" key={i} />
+          ))}
+        </div>
+      </nav>
       {children}
-      <SiteFooter />
+      <footer aria-hidden="true">
+        <div className="container" style={{ display: "flex", gap: 10, padding: "18px 0" }}>
+          <span className="chrome-sk chrome-sk-title" />
+          <span className="chrome-sk chrome-sk-sub" />
+        </div>
+      </footer>
     </div>
   );
 }

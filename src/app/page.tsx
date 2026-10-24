@@ -1,9 +1,28 @@
 /* eslint-disable @next/next/no-img-element */
+import type { Metadata } from "next";
 import Link from "next/link";
 import { publicHome, type HomeData } from "@/lib/api"
 import { bnDay, bnMonthYear, bnDate, toBn } from "@/lib/bn";
+import { categoryLabel } from "@/lib/categories";
+import { getSiteUrl } from "@/lib/site-url";
 import PublicShell from "@/components/site-chrome";
 import { HeroSlider, MeritCarousel, QuoteBand, HomeResultPanel, PortalLoginTabs } from "@/components/home-widgets";
+import { ImagePlaceholder } from "@/components/image-placeholder";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const payload = await publicHome<HomeData>().catch(() => null);
+  const school = payload?.data?.school;
+  const name = school?.nameBn ?? "বিদ্যালয়";
+  const description = school?.address
+    ? `${name}, ${school.address} — নোটিশ, ফলাফল, ভর্তি, শিক্ষক ও শিক্ষার্থী পোর্টাল।`
+    : `${name} — নোটিশ, ফলাফল, ভর্তি, শিক্ষক ও শিক্ষার্থী পোর্টাল।`;
+  return {
+    title: { absolute: name },
+    description,
+    alternates: { canonical: "/" },
+    openGraph: { title: name, description, url: "/", type: "website" },
+  };
+}
 
 const ARROW = (
   <svg className="icon" viewBox="0 0 24 24" width="15"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>
@@ -30,8 +49,29 @@ export default async function HomePage() {
   const news = data?.news ?? [];
   const galleries = data?.galleries ?? [];
 
+  // JSON-LD School schema (Round 6, P4) — built from admin-controlled
+  // school data only; fields are omitted when the API has no value.
+  const siteUrl = getSiteUrl();
+  const jsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "School",
+    name: school?.nameBn ?? "বিদ্যালয়",
+    url: siteUrl,
+  };
+  if (school?.nameEn) jsonLd.alternateName = school.nameEn;
+  if (school?.address)
+    jsonLd.address = { "@type": "PostalAddress", streetAddress: school.address, addressCountry: "BD" };
+  if (school?.phone) jsonLd.telephone = school.phone;
+  if (school?.email) jsonLd.email = school.email;
+  if (school?.foundedYear) jsonLd.foundingDate = school.foundedYear;
+  if (school?.logoUrl) jsonLd.logo = school.logoUrl;
+
   return (
     <PublicShell>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <main className="container">
         {enabled("banner") && <HeroSlider banners={data?.banners ?? []} />}
 
@@ -57,7 +97,7 @@ export default async function HomePage() {
                               <svg className="icon" viewBox="0 0 24 24"><path d="M12 17v5M9 3h6l-1 7 3 3H7l3-3-1-7Z" /></svg>
                             </span>
                           )}
-                          {n.category && <span className="chip">{n.category}</span>}
+                          {n.category && <span className="chip">{categoryLabel(n.category)}</span>}
                         </div>
                       </div>
                     </li>
@@ -76,7 +116,11 @@ export default async function HomePage() {
                 <ul className="news-list">
                   {news.slice(0, 4).map((item) => (
                     <li className="news-item" key={item.id}>
-                      <img src={item.imageUrl ?? "https://placehold.co/172x128/21699D/FFFFFF?text=News"} alt="" loading="lazy" />
+                      {item.imageUrl ? (
+                        <img src={item.imageUrl} alt={item.titleBn} loading="lazy" />
+                      ) : (
+                        <ImagePlaceholder label={item.titleBn} />
+                      )}
                       <div>
                         <h3><Link href="/news">{item.titleBn}</Link></h3>
                         {item.publishedAt && <time>{bnDate(item.publishedAt)}</time>}
@@ -98,7 +142,7 @@ export default async function HomePage() {
                 <article className="card msg-card" key={m.personNameBn}>
                   <div className="who">
                     {m.photoUrl ? (
-                      <img src={m.photoUrl} alt="" loading="lazy" />
+                      <img src={m.photoUrl} alt={`${m.personNameBn} — ${m.designationBn}`} loading="lazy" />
                     ) : (
                       <div className="avatar" style={{ width: 84, height: 84, margin: 0, fontSize: 30 }}>{m.personNameBn.slice(0, 1)}</div>
                     )}
@@ -207,7 +251,11 @@ export default async function HomePage() {
             <div className="gal-grid">
               {galleries.slice(0, 6).map((g) => (
                 <figure className="gal" style={{ margin: 0 }} key={g.id}>
-                  <img src={g.coverUrl ?? "https://placehold.co/600x450/21699D/FFFFFF?text=School"} alt={g.titleBn} loading="lazy" />
+                  {g.coverUrl ? (
+                    <img src={g.coverUrl} alt={g.titleBn} loading="lazy" />
+                  ) : (
+                    <ImagePlaceholder label={g.titleBn} />
+                  )}
                   <figcaption>{g.titleBn}</figcaption>
                 </figure>
               ))}
@@ -242,7 +290,7 @@ export default async function HomePage() {
                   {(data?.downloads ?? []).slice(0, 4).map((d) => (
                     <li key={d.id}>
                       <div className="dl-ic"><svg className="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6ZM14 2v6h6" /></svg></div>
-                      <div><b>{d.titleBn}</b><small>{d.category}</small></div>
+                      <div><b>{d.titleBn}</b><small>{categoryLabel(d.category)}</small></div>
                       <a className="btn btn-outline" href={d.fileUrl}>ডাউনলোড</a>
                     </li>
                   ))}
@@ -263,7 +311,11 @@ export default async function HomePage() {
           <div className="sec-head"><h2 className="sec-title">ভিডিও ও ম্যাপ</h2></div>
           <div className="vm-grid">
             <Link href="/video-gallery" className="video-box">
-              <img src={galleries[0]?.coverUrl ?? "https://placehold.co/800x470/0F3151/FFFFFF?text=School"} alt="বিদ্যালয়ের ভিডিও গ্যালারি" loading="lazy" />
+              {galleries[0]?.coverUrl ? (
+                <img src={galleries[0].coverUrl} alt="বিদ্যালয়ের ভিডিও গ্যালারি" loading="lazy" />
+              ) : (
+                <ImagePlaceholder label="বিদ্যালয়ের ভিডিও গ্যালারি" />
+              )}
               <span className="play-btn">
                 <svg className="icon" viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5-13-7.5Z" /></svg>
               </span>

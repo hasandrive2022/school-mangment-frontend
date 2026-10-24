@@ -6,6 +6,15 @@ import NoticesBrowser, { type NoticeRow } from "./notices-browser";
 
 type Response = { data: NoticeRow[] };
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "নোটিশ বোর্ড",
+  description: "বিদ্যালয়ের সব নোটিশ ও বিজ্ঞপ্তি — ভর্তি, পরীক্ষা, ফলাফল ও সাধারণ।",
+  alternates: { canonical: "/notices" },
+  openGraph: { title: "নোটিশ বোর্ড", description: "বিদ্যালয়ের সব নোটিশ ও বিজ্ঞপ্তি — ভর্তি, পরীক্ষা, ফলাফল ও সাধারণ।", url: "/notices" },
+};
+
 export default async function NoticesPage() {
   return (
     <PublicShell>

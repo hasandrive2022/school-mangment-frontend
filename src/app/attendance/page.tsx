@@ -11,7 +11,11 @@ type Row = {
   status: string;
   registrationNumber: string | null;
   nameBn: string;
+  classId?: string | null;
+  classBn?: string | null;
 };
+
+const PAGE_SIZE = 50;
 
 function statusOf(status: string): {
   label: string;
@@ -41,10 +45,19 @@ function statusOf(status: string): {
   };
 }
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "দৈনিক হাজিরা",
+  description: "তারিখ ও শ্রেণিভিত্তিক দৈনিক হাজিরার সারসংক্ষেপ — মোট রেকর্ড, উপস্থিত ও অনুপস্থিত।",
+  alternates: { canonical: "/attendance" },
+  openGraph: { title: "দৈনিক হাজিরা", description: "তারিখ ও শ্রেণিভিত্তিক দৈনিক হাজিরার সারসংক্ষেপ — মোট রেকর্ড, উপস্থিত ও অনুপস্থিত।", url: "/attendance" },
+};
+
 export default async function AttendancePage({
   searchParams,
 }: {
-  searchParams: Promise<{ date?: string; classId?: string }>;
+  searchParams: Promise<{ date?: string; classId?: string; page?: string }>;
 }) {
   const params = await searchParams;
   const query = new URLSearchParams();
@@ -64,6 +77,36 @@ export default async function AttendancePage({
   const rate =
     rows.length > 0 ? Math.round((present / rows.length) * 100) : null;
   const selectedClass = classOptions.find((c) => c.classId === params.classId);
+  // Class label per row: prefer a classBn on the row itself (newer API),
+  // else resolve from the public students list by registration number.
+  const classByReg = new Map<string, string>();
+  for (const student of studentsPayload?.data ?? []) {
+    if (student.registrationNumber && student.classBn) {
+      classByReg.set(student.registrationNumber, student.classBn);
+    }
+  }
+  const classOf = (row: Row): string =>
+    row.classBn ??
+    (row.registrationNumber ? classByReg.get(row.registrationNumber) : undefined) ??
+    selectedClass?.classBn ??
+    "—";
+  // Pagination (Round 6, P6): the unfiltered list can hold hundreds of
+  // daily records — page it instead of rendering everything at once.
+  const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+  const requestedPage = Number.parseInt(params.page ?? "1", 10);
+  const page =
+    Number.isFinite(requestedPage) && requestedPage >= 1
+      ? Math.min(requestedPage, totalPages)
+      : 1;
+  const pageRows = rows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const pageHref = (target: number): string => {
+    const q = new URLSearchParams();
+    if (params.date) q.set("date", params.date);
+    if (params.classId) q.set("classId", params.classId);
+    if (target > 1) q.set("page", String(target));
+    const qs = q.toString();
+    return qs ? `?${qs}` : "?";
+  };
 
   return (
     <PublicShell>
@@ -117,8 +160,8 @@ export default async function AttendancePage({
               </svg>
             </div>
             <div>
-              <b>{toBn(rows.length)} জন</b>
-              <span>মোট শিক্ষার্থী</span>
+              <b>{toBn(rows.length)}টি</b>
+              <span>মোট রেকর্ড</span>
             </div>
           </div>
           <div className="fact">
@@ -176,12 +219,13 @@ export default async function AttendancePage({
                 <tr>
                   <th>তারিখ</th>
                   <th>শিক্ষার্থীর নাম</th>
+                  <th>শ্রেণি</th>
                   <th>রেজি. নং</th>
                   <th>অবস্থা</th>
                 </tr>
               </thead>
               <tbody>
-                {rows.map((row, index) => {
+                {pageRows.map((row, index) => {
                   const s = statusOf(row.status);
                   return (
                     <tr key={`${row.date}-${row.registrationNumber ?? index}`}>
@@ -189,7 +233,8 @@ export default async function AttendancePage({
                       <td>
                         <b>{row.nameBn}</b>
                       </td>
-                      <td className="num">{row.registrationNumber ?? "—"}</td>
+                      <td>{classOf(row)}</td>
+                      <td className="num">{row.registrationNumber ? toBn(row.registrationNumber) : "—"}</td>
                       <td>
                         <span className={`mark ${s.markClass}`}>{s.mark}</span>{" "}
                         <span className={`chip ${s.chipClass}`}>{s.label}</span>
@@ -204,6 +249,35 @@ export default async function AttendancePage({
           <p className="small muted center">
             কোনো প্রকাশিত হাজিরা তথ্য নেই।
           </p>
+        )}
+        {rows.length > 0 && (
+          <div
+            style={{
+              display: "flex",
+              gap: 10,
+              alignItems: "center",
+              flexWrap: "wrap",
+              marginTop: 14,
+            }}
+          >
+            <span className="small muted">
+              মোট {toBn(rows.length)}টি রেকর্ডের মধ্যে{" "}
+              {toBn((page - 1) * PAGE_SIZE + 1)}–
+              {toBn(Math.min(page * PAGE_SIZE, rows.length))} দেখানো হচ্ছে ·
+              পৃষ্ঠা {toBn(page)} / {toBn(totalPages)}
+            </span>
+            <span style={{ flex: 1 }} />
+            {page > 1 && (
+              <Link className="btn btn-outline btn-sm" href={pageHref(page - 1)}>
+                ‹ আগের পৃষ্ঠা
+              </Link>
+            )}
+            {page < totalPages && (
+              <Link className="btn btn-outline btn-sm" href={pageHref(page + 1)}>
+                পরের পৃষ্ঠা ›
+              </Link>
+            )}
+          </div>
         )}
         <p className="small muted" style={{ marginTop: 12 }}>
           শুধুমাত্র সারসংক্ষেপ তথ্য প্রকাশ করা হয় — বিস্তারিত হাজিরা বিবরণী

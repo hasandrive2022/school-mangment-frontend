@@ -2,21 +2,38 @@
 
 import { FormEvent, useState } from "react";
 
+/**
+ * GRS complaint form (Round 6, P3):
+ * - Posts to the COMPLAINTS resource (/public/content/complaints), NOT
+ *   contact-messages — previously complaints landed in the contact inbox.
+ * - Single status state: success XOR error, never both at once (the live
+ *   bug showed green + red together); status is cleared on every submit.
+ * - The complaints API returns { data: { id, message } } — the id is shown
+ *   as the complaint reference number on success.
+ */
+type Status =
+  | { kind: "success"; refId?: string }
+  | { kind: "error"; message: string }
+  | null;
+
 export default function ComplianceForm() {
-  const [sent, setSent] = useState(false);
-  const [error, setError] = useState("");
+  const [status, setStatus] = useState<Status>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError("");
-    const form = new FormData(event.currentTarget);
+    if (submitting) return;
+    const formEl = event.currentTarget;
+    setStatus(null);
+    setSubmitting(true);
+    const form = new FormData(formEl);
     const api =
       process.env.NEXT_PUBLIC_BACKEND_API_URL ??
       "https://school-mangment-backend.vercel.app/api/v1";
     const schoolId = process.env.NEXT_PUBLIC_SCHOOL_ID ?? "";
     try {
       const response = await fetch(
-        `${api}/public/content/contact-messages${schoolId ? `?schoolId=${encodeURIComponent(schoolId)}` : ""}`,
+        `${api}/public/content/complaints${schoolId ? `?schoolId=${encodeURIComponent(schoolId)}` : ""}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -24,10 +41,18 @@ export default function ComplianceForm() {
         },
       );
       if (!response.ok) throw new Error("request failed");
-      setSent(true);
-      event.currentTarget.reset();
+      const payload = (await response.json().catch(() => null)) as {
+        data?: { id?: string };
+      } | null;
+      setStatus({ kind: "success", refId: payload?.data?.id });
+      formEl.reset();
     } catch {
-      setError("অভিযোগ পাঠানো যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।");
+      setStatus({
+        kind: "error",
+        message: "অভিযোগ পাঠানো যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।",
+      });
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -72,21 +97,29 @@ export default function ComplianceForm() {
             <input type="checkbox" /> পরিচয় গোপন রেখে অভিযোগ করতে চাই (নাম প্রকাশ করা হবে না)
           </label>
           <div style={{ marginTop: 18 }}>
-            <button className="btn btn-danger btn-lg" type="submit">
+            <button className="btn btn-danger btn-lg" type="submit" disabled={submitting}>
               <svg className="icon" viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z" /></svg>
-              অভিযোগ জমা দিন
+              {submitting ? "পাঠানো হচ্ছে…" : "অভিযোগ জমা দিন"}
             </button>
           </div>
-          {sent && (
-            <div className="alert alert-green" style={{ margin: "16px 0 0" }}>
+          {status?.kind === "success" && (
+            <div className="alert alert-green" style={{ margin: "16px 0 0" }} role="status">
               <svg className="icon" viewBox="0 0 24 24"><path d="M22 11.1V12a10 10 0 1 1-5.9-9.1" /><path d="M22 4 12 14l-3-3" /></svg>
-              <span><b>অভিযোগ গৃহীত হয়েছে।</b> ধন্যবাদ — অভিযোগ প্রতিকার ব্যবস্থাপনার আওতায় বিষয়টি পর্যালোচনা করা হবে।</span>
+              <span>
+                <b>অভিযোগ গৃহীত হয়েছে।</b> ধন্যবাদ — অভিযোগ প্রতিকার ব্যবস্থাপনার আওতায় বিষয়টি পর্যালোচনা করা হবে।
+                {status.refId && (
+                  <>
+                    <br />
+                    অভিযোগের রেফারেন্স নম্বর: <b>{status.refId}</b> — পরবর্তী যোগাযোগের জন্য এটি সংরক্ষণ করুন।
+                  </>
+                )}
+              </span>
             </div>
           )}
-          {error && (
-            <div className="alert alert-red" style={{ margin: "16px 0 0" }}>
+          {status?.kind === "error" && (
+            <div className="alert alert-red" style={{ margin: "16px 0 0" }} role="alert">
               <svg className="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 8h.01M12 11v5" /></svg>
-              <span>{error}</span>
+              <span>{status.message}</span>
             </div>
           )}
         </form>
