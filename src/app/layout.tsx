@@ -1,5 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
+
+export const instant = false;
 
 export const metadata: Metadata = {
   title: "আদর্শ মডেল উচ্চ বিদ্যালয়",
@@ -25,7 +27,15 @@ export const metadata: Metadata = {
     title: "আদর্শ মডেল উচ্চ বিদ্যালয়",
     description: "বিদ্যালয়ের জনসাধারণের ও শিক্ষার্থী পোর্টাল",
   },
+  alternates: { canonical: "/" },
+  authors: [{ name: "আদর্শ মডেল উচ্চ বিদ্যালয়" }],
   robots: { index: true, follow: true },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0f3151",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
