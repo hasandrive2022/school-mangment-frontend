@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
-export const instant = false;
-
 export const metadata: Metadata = {
   title: "আদর্শ মডেল উচ্চ বিদ্যালয়",
   description: "আদর্শ মডেল উচ্চ বিদ্যালয়ের জনসাধারণের ও শিক্ষার্থী পোর্টাল",

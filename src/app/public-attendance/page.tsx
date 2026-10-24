@@ -53,7 +53,7 @@ export default async function PublicAttendancePage({
   const qs = query.toString();
 
   const [payload, studentsPayload] = await Promise.all([
-    publicApi<{ data: Row[] }>(`/public/attendance${qs ? `?${qs}` : ""}`),
+    publicApi<{ data: Row[] }>(`/public/attendance${qs ? `?${qs}` : ""}`, { cache: "no-store" }),
     publicApi<PublicStudentsResponse>("/public/students"),
   ]);
   const rows = payload?.data ?? [];

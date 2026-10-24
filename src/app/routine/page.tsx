@@ -9,8 +9,8 @@ import { RoutineTabs } from "./routine-tabs";
 
 export default async function RoutinePage() {
   const [classPayload, examPayload] = await Promise.all([
-    publicApi<RoutineClassResponse>("/public/routine?type=class"),
-    publicApi<RoutineExamResponse>("/public/routine?type=exam"),
+    publicApi<RoutineClassResponse>("/public/routine?type=class", { cache: "no-store" }),
+    publicApi<RoutineExamResponse>("/public/routine?type=exam", { cache: "no-store" }),
   ]);
 
   return (

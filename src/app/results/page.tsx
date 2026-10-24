@@ -31,6 +31,7 @@ export default async function PublicResultsPage({
   const qs = query.toString();
   const resultsPayload = await publicApi<PublicResultsResponse>(
     `/public/results${qs ? `?${qs}` : ""}`,
+    { cache: "no-store" },
   );
 
   return (
