@@ -2032,10 +2032,10 @@ body {
   width: 100%;
 }
 .dsite .block {
-  margin-top: clamp(24px, 4vw, 42px);
+  margin-top: clamp(18px, 2.5vw, 30px);
 }
 .dsite .block:first-child {
-  margin-top: 24px;
+  margin-top: 16px;
 }
 .dsite .sec-head {
   margin-top: 0;
