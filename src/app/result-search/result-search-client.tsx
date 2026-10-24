@@ -137,7 +137,12 @@ export function ResultSearchClient({
 
   return (
     <>
-      <div className="card filter-card" style={{ maxWidth: 860, marginLeft: "auto", marginRight: "auto" }}>
+      <section className="result-search-hero" aria-labelledby="result-search-title">
+        <div className="result-search-kicker"><span className="result-search-kicker-dot" /> ডিজিটাল একাডেমিক রেকর্ড</div>
+        <h1 id="result-search-title">আপনার ফলাফল, এক নজরে</h1>
+        <p>রেজিস্ট্রেশন নম্বর দিয়ে নিরাপদে ফলাফল দেখুন এবং প্রয়োজনে PDF হিসেবে সংরক্ষণ করুন।</p>
+      </section>
+      <div className="card filter-card result-search-card" style={{ maxWidth: 860, marginLeft: "auto", marginRight: "auto" }}>
         <h3 style={{ fontSize: 18, color: "var(--p800)", marginBottom: 4 }}>রেজিস্ট্রেশন নম্বর দিয়ে ফলাফল খুঁজুন</h3>
         <p className="small muted" style={{ margin: "0 0 14px" }}>লগিন ছাড়াই ফলাফল দেখা যাবে।</p>
         <form
@@ -185,13 +190,15 @@ export function ResultSearchClient({
 
       {result && (
         <div style={{ maxWidth: 860, margin: "0 auto" }}>
-          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", marginBottom: 12, flexWrap: "wrap" }}>
-            <button className="btn btn-outline btn-sm" type="button" onClick={() => window.print()}>
-              <svg className="icon" viewBox="0 0 24 24" width="16"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2m-12-3h12v6H6z" /></svg>
-              প্রিন্ট করুন
+          <div className="result-actions" aria-label="ফলাফল সংরক্ষণ করার অপশন">
+            <span className="result-actions-note">ফলাফলটি PDF করতে প্রিন্ট অপশন থেকে “Save as PDF” বেছে নিন</span>
+            <button className="btn btn-primary btn-sm" type="button" onClick={() => window.print()}>
+              <svg className="icon" viewBox="0 0 24 24" width="16"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5h-2m-12-3h12v6H6z" /></svg>
+              PDF / প্রিন্ট
             </button>
           </div>
           <div className="marksheet">
+            <div className="marksheet-ribbon">VERIFIED ACADEMIC RECORD</div>
             <div className="ms-head">
               <h3>{schoolName}</h3>
               <p>
