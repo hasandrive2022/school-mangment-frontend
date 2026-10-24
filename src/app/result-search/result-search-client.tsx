@@ -14,6 +14,7 @@ type SubjectMark = {
   grade?: string;
   gradePoint?: number | string;
   gpa?: number | string;
+  subjectNameEn?: string | null;
 };
 
 type ResultData = {
@@ -45,7 +46,14 @@ type NormalizedResult = {
   status: SearchStatus;
   result?: ResultData;
   exam?: { nameBn: string };
-  student?: { nameBn?: string; registrationNumber?: string };
+  student?: {
+    nameBn?: string;
+    nameEn?: string | null;
+    registrationNumber?: string;
+    classNameBn?: string | null;
+    sectionNameBn?: string | null;
+    roll?: number | null;
+  };
   subjects?: SubjectMark[];
 };
 
@@ -212,6 +220,15 @@ export function ResultSearchClient({
                 <div><span>শিক্ষার্থীর নাম</span><b>{studentName}</b></div>
               )}
               <div><span>রেজিস্ট্রেশন নং</span><b>{payload?.student?.registrationNumber ?? registrationNumber}</b></div>
+              {payload?.student?.classNameBn && (
+                <div><span>শ্রেণি</span><b>{payload.student.classNameBn}</b></div>
+              )}
+              {payload?.student?.sectionNameBn && (
+                <div><span>শাখা</span><b>{payload.student.sectionNameBn}</b></div>
+              )}
+              {payload?.student?.roll !== null && payload?.student?.roll !== undefined && (
+                <div><span>রোল</span><b>{toBn(payload.student.roll)}</b></div>
+              )}
               {payload?.exam?.nameBn && (
                 <div><span>পরীক্ষা</span><b>{payload.exam.nameBn}</b></div>
               )}
