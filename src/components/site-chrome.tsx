@@ -197,7 +197,16 @@ async function PublicShellContent({ children }: { children: ReactNode }) {
 }
 
 function PublicShellLoading({ children }: { children: ReactNode }) {
-  return <div className="dsite">{children}</div>;
+  return (
+    <div className="dsite">
+      <TopBar />
+      <SiteHeader />
+      <SiteNav items={[]} />
+      <Ticker items={[]} />
+      {children}
+      <SiteFooter />
+    </div>
+  );
 }
 
 export default function PublicShell({ children }: { children: ReactNode }) {
