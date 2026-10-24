@@ -8,7 +8,7 @@ import type { UploadRouter } from "@/app/api/uploadthing/core";
 const api =
   process.env.NEXT_PUBLIC_BACKEND_API_URL ??
   "https://school-mangment-backend.vercel.app/api/v1";
-const schoolId = process.env.NEXT_PUBLIC_SCHOOL_ID ?? "a370abb2-8800-41e9-9b5a-3d22575b04f2";
+const schoolId = process.env.NEXT_PUBLIC_SCHOOL_ID ?? "";
 const { useUploadThing } = generateReactHelpers<UploadRouter>();
 type AdmissionField = string | { key?: string; name?: string; labelBn?: string; required?: boolean; type?: string };
 const fallbackFields: AdmissionField[] = [{ key: "nameBn", labelBn: "শিক্ষার্থীর বাংলা নাম", required: true }, { key: "nameEn", labelBn: "শিক্ষার্থীর ইংরেজি নাম" }, { key: "guardianMobile", labelBn: "অভিভাবকের মোবাইল", required: true }, { key: "admissionClassId", labelBn: "ভর্তির শ্রেণি", required: true }, { key: "sessionId", labelBn: "শিক্ষাবর্ষ", required: true }];

@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
   else bucket.count += 1;
 
   const base = process.env.NEXT_PUBLIC_BACKEND_API_URL ?? "https://school-mangment-backend.vercel.app/api/v1";
-  const schoolId = process.env.NEXT_PUBLIC_SCHOOL_ID ?? "a370abb2-8800-41e9-9b5a-3d22575b04f2";
+  const schoolId = process.env.NEXT_PUBLIC_SCHOOL_ID ?? "";
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 8_000);
   try {
