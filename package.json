@@ -34,11 +34,5 @@
     "tailwindcss": "^4",
     "typescript": "^5"
   },
-  "packageManager": "pnpm@12.8.1",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "msgpackr-extract",
-      "unrs-resolver"
-    ]
-  }
+  "packageManager": "pnpm@12.8.1"
 }

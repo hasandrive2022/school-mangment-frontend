@@ -1,2 +1,6 @@
 packages:
   - "."
+
+allowBuilds:
+  msgpackr-extract: true
+  unrs-resolver: true
