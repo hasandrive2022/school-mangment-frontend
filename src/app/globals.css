@@ -1963,6 +1963,173 @@ body {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* Final responsive polish shared by every public page. */
+.dsite {
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: linear-gradient(180deg, #eef4f8 0%, #f8f9fa 22rem);
+}
+.dsite .site-header {
+  position: relative;
+  isolation: isolate;
+}
+.dsite .site-header::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -1px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--a600), var(--p500), var(--danger));
+  opacity: .9;
+}
+.dsite .brand h1,
+.dsite .sec-title,
+.dsite .public-title,
+.dsite .public-detail-card h1,
+.dsite .contact-form h2 {
+  letter-spacing: -.02em;
+}
+.dsite .card,
+.dsite .fact,
+.dsite .pcard,
+.dsite .tbl-wrap,
+.dsite .public-detail-card,
+.dsite .contact-info-card {
+  transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease;
+}
+.dsite .card:hover,
+.dsite .fact:hover,
+.dsite .pcard:hover {
+  border-color: #c9dceb;
+  box-shadow: 0 10px 26px rgba(15,49,81,.11);
+}
+.dsite main.container {
+  width: 100%;
+}
+.dsite .block {
+  margin-top: clamp(24px, 4vw, 42px);
+}
+.dsite .block:first-child {
+  margin-top: 24px;
+}
+.dsite .sec-head {
+  margin-top: 0;
+}
+.dsite input,
+.dsite select,
+.dsite textarea {
+  max-width: 100%;
+}
+.dsite .hero,
+.dsite .hero-slider,
+.dsite .hero-wrap {
+  border-radius: 12px;
+  overflow: hidden;
+}
+@media (max-width: 820px) {
+  .dsite .topbar .container {
+    min-height: 34px;
+    justify-content: center;
+  }
+  .dsite .topbar .tb-left {
+    display: none;
+  }
+  .dsite .topbar .tb-right {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .dsite .site-header .container {
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+  .dsite .brand {
+    gap: 11px;
+  }
+  .dsite .brand h1 {
+    font-size: clamp(18px, 4.4vw, 22px);
+  }
+  .dsite .brand .en,
+  .dsite .brand .motto {
+    font-size: 11px;
+  }
+  .dsite .navbar .container {
+    min-height: 48px;
+  }
+  .dsite .drawer {
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+  }
+}
+@media (max-width: 640px) {
+  .dsite .ticker .container {
+    padding: 0;
+  }
+  .dsite .ticker-label {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  .dsite .tick-item {
+    padding-left: 12px;
+    font-size: 13px;
+  }
+  .dsite .pbanner h2 {
+    align-items: flex-start;
+  }
+  .dsite .sec-head {
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .dsite .sec-title {
+    font-size: 19px;
+  }
+  .dsite .sec-title::before {
+    height: 21px;
+  }
+  .dsite .sec-more {
+    font-size: 13px;
+    margin-top: 2px;
+  }
+  .dsite .two-col,
+  .dsite .grid-2 {
+    gap: 14px;
+  }
+  .dsite .card {
+    border-radius: 10px;
+  }
+  .dsite footer .foot-grid {
+    padding-left: 2px;
+    padding-right: 2px;
+  }
+}
+@media (max-width: 420px) {
+  .dsite .container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .dsite .brand .logo {
+    width: 48px;
+    height: 48px;
+  }
+  .dsite .brand h1 {
+    font-size: 17px;
+  }
+  .dsite .brand .en {
+    display: none;
+  }
+  .dsite .admin-link {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    font-size: 12px !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dsite .card,
+  .dsite .fact,
+  .dsite .pcard {
+    transition: none;
+  }
+}
 .error-page {
   min-height: 100vh;
   display: grid;
