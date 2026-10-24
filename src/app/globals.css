@@ -2469,6 +2469,155 @@ body {
   color: #5a5a5a;
   line-height: 1.7;
 }
+/* ============================================================
+   CROSS-PAGE POLISH — shared improvements for the public portal
+   ============================================================ */
+.dsite {
+  background: #eef3f8;
+  color: var(--ink);
+}
+.dsite .container {
+  width: min(100% - 32px, 1240px);
+  padding-inline: 0;
+}
+.dsite .topbar {
+  background: linear-gradient(110deg, #081f35, #0f3151 62%, #16456e);
+}
+.dsite .topbar .container,
+.dsite .site-header .container {
+  min-height: 42px;
+}
+.dsite .site-header {
+  background: rgba(255,255,255,.96);
+  backdrop-filter: blur(12px);
+}
+.dsite .site-header .container {
+  padding-block: 16px;
+}
+.dsite .brand {
+  gap: 14px;
+}
+.dsite .brand .logo {
+  filter: drop-shadow(0 5px 10px rgba(15,49,81,.14));
+}
+.dsite .brand h1 {
+  letter-spacing: -.02em;
+}
+.dsite .navbar {
+  background: #0b2740;
+  box-shadow: 0 6px 18px rgba(11,39,64,.2);
+}
+.dsite .nav-list > li > a {
+  padding: 14px 15px;
+  font-size: 15px;
+  transition: background .2s ease, color .2s ease;
+}
+.dsite .nav-list > li.active > a {
+  background: #2e9e5b;
+}
+.dsite .ticker-label {
+  background: #c62828;
+}
+.dsite .page-body {
+  padding-block: 38px 56px;
+}
+.dsite .pbanner {
+  background: radial-gradient(circle at 85% 20%, rgba(55,152,234,.25), transparent 35%), linear-gradient(120deg, #081f35, #0f3151 60%, #16456e);
+}
+.dsite .pbanner .container {
+  padding-block: 38px;
+}
+.dsite .pbanner h2 {
+  font-size: clamp(24px, 3vw, 32px);
+  letter-spacing: -.02em;
+}
+.dsite .card,
+.dsite .fact,
+.dsite .pcard,
+.dsite .tbl-wrap {
+  border-color: #dbe4ed;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(15,49,81,.06);
+  transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease;
+}
+.dsite .card:hover,
+.dsite .pcard:hover,
+.dsite .fact:hover {
+  border-color: #bfd3e4;
+  box-shadow: 0 12px 28px rgba(15,49,81,.1);
+}
+.dsite .sec-head {
+  margin-block: 34px 18px;
+}
+.dsite .sec-title {
+  font-size: 22px;
+  letter-spacing: -.015em;
+}
+.dsite .sec-title::before {
+  width: 5px;
+  height: 28px;
+  background: linear-gradient(#21699d, #3798ea);
+}
+.dsite .btn {
+  min-height: 42px;
+  border-radius: 8px;
+  font-weight: 700;
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.dsite .btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 12px rgba(15,49,81,.12);
+}
+.dsite .btn-primary {
+  background: linear-gradient(135deg, #21699d, #16456e);
+}
+.dsite input,
+.dsite select,
+.dsite textarea {
+  border-radius: 9px;
+  border-color: #cbd8e4;
+  background: #fff;
+}
+.dsite input:focus,
+.dsite select:focus,
+.dsite textarea:focus {
+  border-color: #3798ea;
+  box-shadow: 0 0 0 3px rgba(55,152,234,.16);
+}
+.dsite table.data th {
+  background: #eaf3fa;
+}
+.dsite table.data tbody tr:nth-child(even) td {
+  background: #fbfdff;
+}
+.dsite footer {
+  background: linear-gradient(140deg, #081f35, #0f3151);
+}
+.dsite footer h4 {
+  border-bottom-color: rgba(55,152,234,.45);
+}
+@media (max-width: 760px) {
+  .dsite .container { width: min(100% - 24px, 1240px); }
+  .dsite .topbar .container { min-height: 36px; }
+  .dsite .topbar .tb-left { gap: 10px; }
+  .dsite .topbar { font-size: 12px; }
+  .dsite .site-header .container { padding-block: 12px; }
+  .dsite .brand h1 { font-size: 20px; }
+  .dsite .brand .en { display: none; }
+  .dsite .ticker .container { width: 100%; }
+  .dsite .ticker-label { padding-inline: 12px; font-size: 13px; }
+  .dsite .tick-item { padding-left: 14px; font-size: 13px; }
+  .dsite .page-body { padding-block: 26px 40px; }
+  .dsite .pbanner .container { padding-block: 28px; }
+  .dsite .pbanner h2 { font-size: 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dsite .card,
+  .dsite .fact,
+  .dsite .pcard,
+  .dsite .btn { transition: none; }
+}
+
 .error-button {
   display: inline-flex;
   min-height: 40px;
