@@ -6,7 +6,7 @@ import { bnDay, bnMonthYear, bnDate, toBn } from "@/lib/bn";
 import { categoryLabel } from "@/lib/categories";
 import { getSiteUrl } from "@/lib/site-url";
 import PublicShell from "@/components/site-chrome";
-import { HeroSlider, MeritCarousel, QuoteBand, HomeResultPanel, PortalLoginTabs } from "@/components/home-widgets";
+import { HeroSlider, MeritCarousel, QuoteBand, HomeResultPanel } from "@/components/home-widgets";
 import { ImagePlaceholder } from "@/components/image-placeholder";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -238,7 +238,6 @@ export default async function HomePage() {
         <section className="block" id="result-box">
           <div className="rl-grid">
             <HomeResultPanel />
-            <PortalLoginTabs />
           </div>
         </section>
 
