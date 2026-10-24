@@ -1,12 +1,29 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { publicApi, type HomeData } from "@/lib/api";
 import PublicShell from "@/components/site-chrome";
 import ContactClient from "./contact-client";
 
-export default async function ContactPage() {
+async function ContactContent() {
   const payload = await publicApi<HomeData>("/public/content/home");
   const school = payload?.data.school;
 
+  return (
+    <ContactClient
+      school={
+        school
+          ? { nameBn: school.nameBn, address: school.address, eiin: school.eiin, foundedYear: school.foundedYear }
+          : undefined
+      }
+    />
+  );
+}
+
+function ContactLoading() {
+  return <div className="contact-loading" aria-hidden="true" />;
+}
+
+export default function ContactPage() {
   return (
     <PublicShell>
       <div className="pbanner">
@@ -23,13 +40,9 @@ export default async function ContactPage() {
         </div>
       </div>
       <div className="container page-body">
-        <ContactClient
-          school={
-            school
-              ? { nameBn: school.nameBn, address: school.address, eiin: school.eiin, foundedYear: school.foundedYear }
-              : undefined
-          }
-        />
+        <Suspense fallback={<ContactLoading />}>
+          <ContactContent />
+        </Suspense>
       </div>
     </PublicShell>
   );
