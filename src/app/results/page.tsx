@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import PublicShell from "@/components/site-chrome";
 import {
@@ -7,7 +8,16 @@ import {
 } from "@/lib/api";
 import { ResultsClient } from "./results-client";
 
-export default async function PublicResultsPage({
+function ResultsLoading() {
+  return (
+    <div className="card loading-card" aria-busy="true" aria-live="polite">
+      <span className="loading-spinner" aria-hidden="true" />
+      <span>ফলাফল লোড হচ্ছে…</span>
+    </div>
+  );
+}
+
+async function ResultsContent({
   searchParams,
 }: {
   searchParams: Promise<{ examId?: string; classId?: string }>;
@@ -35,6 +45,22 @@ export default async function PublicResultsPage({
   );
 
   return (
+    <ResultsClient
+      key={`${resultsPayload?.examId ?? "none"}-${classId ?? "all"}`}
+      exams={exams}
+      rows={resultsPayload?.data ?? []}
+      examId={resultsPayload?.examId ?? examId ?? null}
+      classId={classId ?? null}
+    />
+  );
+}
+
+export default function PublicResultsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ examId?: string; classId?: string }>;
+}) {
+  return (
     <PublicShell>
       <div className="pbanner">
         <div className="container">
@@ -52,13 +78,9 @@ export default async function PublicResultsPage({
         </div>
       </div>
       <main className="container page-body">
-        <ResultsClient
-          key={`${resultsPayload?.examId ?? "none"}-${classId ?? "all"}`}
-          exams={exams}
-          rows={resultsPayload?.data ?? []}
-          examId={resultsPayload?.examId ?? examId ?? null}
-          classId={classId ?? null}
-        />
+        <Suspense fallback={<ResultsLoading />}>
+          <ResultsContent searchParams={searchParams} />
+        </Suspense>
       </main>
     </PublicShell>
   );
