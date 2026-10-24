@@ -1,10 +1,280 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { publicApi, type HomeData } from "@/lib/api";
+import { bnDay, bnMonthYear, bnDate, toBn } from "@/lib/bn";
+import PublicShell from "@/components/site-chrome";
+import { HeroSlider, MeritCarousel, QuoteBand, HomeResultPanel, PortalLoginTabs } from "@/components/home-widgets";
+
+const ARROW = (
+  <svg className="icon" viewBox="0 0 24 24" width="15"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>
+);
+
+const SVC_ICONS = [
+  <path key="a" d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-4h6v4" />,
+  <path key="b" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8" />,
+  <path key="c" d="m12 2 9 5-9 5-9-5 9-5ZM3 12l9 5 9-5M3 17l9 5 9-5" />,
+  <path key="d" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6ZM14 2v6h6M9 13h6M9 17h4" />,
+  <path key="e" d="M12 9a6 6 0 1 0 0 0Zm-3.5 5-2 8 5.5-3 5.5 3-2-8" />,
+  <path key="f" d="m3 11 18-7-4 16-5-4-3 4v-5L3 11ZM12 16 21 4" />,
+];
+
+const GREEN_KEYWORDS = ["তথ্য অধিকার", "অভিযোগ", "কর্মসম্পাদনা", "শুদ্ধাচার", "সেবা প্রদান", "উদ্ভাবনী", "সিটিজেন"];
 
 export default async function HomePage() {
-  const payload = await publicApi<HomeData>("/public/content/home"); const data = payload?.data; const blocks = [...(data?.blocks ?? [])].filter((block) => block.isEnabled).sort((a, b) => a.orderIndex - b.orderIndex); const enabled = (key: string) => blocks.some((block) => block.key === key); const school = data?.school;
-  return <div className="site-home"><div className="home-topbar"><div className="home-container"><span>বাংলাদেশের একটি শিক্ষা প্রতিষ্ঠান</span><span>EIIN: {school?.eiin ?? "—"} · প্রতিষ্ঠিত: {school?.foundedYear ?? "—"} <Link href="/login" className="admin-pill">Admin লগইন</Link></span></div></div><header className="home-header"><div className="home-container brand-row"><div className="brand-mark">{school?.logoUrl ? <img src={school.logoUrl} alt="লোগো" /> : "আ"}</div><div><h1>{school?.nameBn ?? "আদর্শ মডেল উচ্চ বিদ্যালয়"}</h1><p>{school?.nameEn ?? "Adarsha Model High School"}</p><strong>শিক্ষাই জাতির মেরুদণ্ড</strong></div><div className="gov-card">গণপ্রজাতন্ত্রী বাংলাদেশ<small>শিক্ষা মন্ত্রণালয়</small></div></div></header>{enabled("menu") && <nav className="home-nav"><div className="home-container nav-links"><Link href="/">হোম</Link>{(data?.menuItems ?? []).sort((a, b) => a.orderIndex - b.orderIndex).map((item) => <Link href={item.href} key={item.id}>{item.labelBn}</Link>)}</div></nav>}{enabled("ticker") && <div className="ticker"><div className="home-container ticker-row"><b>সর্বশেষ</b><Link href={data?.notices?.[0] ? `/notices/${data.notices[0].id}` : "/notices"}>{data?.notices?.[0]?.titleBn ?? "সর্বশেষ বিজ্ঞপ্তি দেখুন"}</Link></div></div>}<main className="home-container">{enabled("banner") && <section className="hero-slider">{data?.banners?.[0] ? <><img src={data.banners[0].imageUrl} alt={data.banners[0].titleBn} /><div><h2>{data.banners[0].titleBn}</h2><p>{data.banners[0].captionBn}</p></div></> : <div className="empty-home">ব্যানার শীঘ্রই প্রকাশিত হবে</div>}</section>}{enabled("about") && <section className="home-block about-grid"><div><SectionTitle title="আমাদের বিদ্যালয়" href="/about" /><p>{data?.pages?.find((page) => page.slug === "about")?.body ?? "বিদ্যালয়ের পরিচিতি শীঘ্রই প্রকাশিত হবে।"}</p><Link href="/about" className="more-link">বিস্তারিত পড়ুন →</Link></div><div className="stats-band"><Stat value={data?.stats?.students?.toLocaleString("bn-BD") ?? "—"} label="মোট শিক্ষার্থী" /><Stat value={data?.stats?.teachers?.toLocaleString("bn-BD") ?? "—"} label="মোট শিক্ষক" /><Stat value={school?.foundedYear ?? "—"} label="প্রতিষ্ঠার বছর" /><Stat value={school?.eiin ?? "—"} label="EIIN" /></div></section>}{enabled("services") && <section className="home-block"><SectionTitle title="গুরুত্বপূর্ণ সেবা" /><div className="service-grid">{(data?.services ?? []).map((service) => <article className="home-card service-card" key={service.id}><div className="service-icon">✦</div><h3>{service.titleBn}</h3>{(data?.serviceLinks ?? []).filter((link) => link.serviceBoxId === service.id).slice(0, 4).map((link) => <Link href={link.href} key={link.id}>› {link.labelBn}</Link>)}</article>)}</div></section>}{enabled("messages") && <section className="home-block"><SectionTitle title="প্রধানের বাণী" /><div className="message-grid">{(data?.messages ?? []).map((message) => <article className="home-card message-card" key={message.personNameBn}>{message.photoUrl ? <img src={message.photoUrl} alt="" /> : <div className="avatar">{message.personNameBn.slice(0, 1)}</div>}<div><h3>{message.personNameBn}</h3><strong>{message.designationBn}</strong><p>{message.body}</p></div></article>)}</div></section>}{enabled("merit") && <section className="home-block"><SectionTitle title="মেধাবী শিক্ষার্থী" href="/students" /><div className="person-grid">{(data?.meritoriousStudents ?? []).map((student, index) => <article className="home-card person-card" key={student.id}><span className="rank-badge">{index + 1}</span><div><h3>{student.nameBn}</h3><p>রেজিস্ট্রেশন: {student.registrationNumber ?? "—"}</p></div></article>)}</div></section>}{enabled("teachers") && <section className="home-block"><SectionTitle title="আমাদের শিক্ষকবৃন্দ" href="/teachers" /><div className="person-grid">{(data?.teachers ?? []).map((teacher) => <article className="home-card person-card" key={teacher.id}><div className="avatar">{teacher.nameBn.slice(0, 1)}</div><div><h3>{teacher.nameBn}</h3><p>{teacher.username ?? "শিক্ষক"}</p></div></article>)}</div></section>}{(enabled("notices") || enabled("news")) && <section className="home-block two-col"><div className="home-card"><SectionTitle title="বিজ্ঞপ্তি" href="/notices" />{(data?.notices ?? []).slice(0, 5).map((notice) => <Link className="notice-row" href={`/notices/${notice.id}`} key={notice.id}><span className="date-badge">{new Date(notice.createdAt).getDate()}<small>তারিখ</small></span><span><b>{notice.titleBn}</b><em>{notice.category}{notice.isPinned ? " · পিন" : ""}</em></span></Link>)}</div><div className="home-card"><SectionTitle title="সাম্প্রতিক খবর" href="/news" />{(data?.news ?? []).slice(0, 4).map((item) => <Link className="news-row" href="/news" key={item.id}><b>{item.titleBn}</b><small>{item.summary}</small></Link>)}</div></section>}{(enabled("events") || enabled("gallery")) && <section className="home-block two-col"><div><SectionTitle title="আসন্ন অনুষ্ঠান" href="/events" />{(data?.events ?? []).slice(0, 4).map((event) => <article className="home-card event-row" key={event.id}><span className="date-badge">{new Date(event.startsAt).getDate()}<small>তারিখ</small></span><div><b>{event.titleBn}</b><p>{event.venue ?? "বিদ্যালয় প্রাঙ্গণ"}</p></div></article>)}</div><div><SectionTitle title="ফটো গ্যালারি" href="/gallery" /><div className="gallery-grid">{(data?.galleries ?? []).slice(0, 3).map((gallery) => <Link href="/gallery" key={gallery.id}><img src={gallery.coverUrl ?? "https://placehold.co/400x260/21699D/FFFFFF?text=School"} alt={gallery.titleBn} /><span>{gallery.titleBn}</span></Link>)}</div></div></section>}{(enabled("downloads") || enabled("links")) && <section className="home-block two-col"><div className="home-card"><SectionTitle title="ডাউনলোড" href="/downloads" />{(data?.downloads ?? []).slice(0, 5).map((item) => <Link className="download-row" href={item.fileUrl} key={item.id}>▣ <span>{item.titleBn}</span>↓</Link>)}</div><div className="home-card"><SectionTitle title="গুরুত্বপূর্ণ লিংক" href="/links" />{(data?.links ?? []).slice(0, 5).map((item) => <Link className="download-row" href={item.url} key={item.id}>↗ <span>{item.labelBn}</span>→</Link>)}</div></section>}</main><footer className="home-footer"><div className="home-container footer-grid"><div><h2>{school?.nameBn ?? "আদর্শ মডেল উচ্চ বিদ্যালয়"}</h2><p>{school?.address ?? "—"}</p></div><div><h3>দ্রুত লিংক</h3><Link href="/about">আমাদের বিদ্যালয়</Link><Link href="/contact">যোগাযোগ</Link></div><div><h3>ঠিকানা</h3><p>{school?.address ?? "—"}</p></div></div><div className="home-container copyright">© {new Date().getFullYear()} {school?.nameBn ?? "আদর্শ মডেল উচ্চ বিদ্যালয়"} — সর্বস্বত্ব সংরক্ষিত</div></footer></div>;
+  const payload = await publicApi<HomeData>("/public/content/home");
+  const data = payload?.data;
+  const blocks = [...(data?.blocks ?? [])].filter((b) => b.isEnabled).sort((a, b) => a.orderIndex - b.orderIndex);
+  const enabled = (key: string) => blocks.some((b) => b.key === key);
+  const school = data?.school;
+  const notices = data?.notices ?? [];
+  const news = data?.news ?? [];
+  const galleries = data?.galleries ?? [];
+
+  return (
+    <PublicShell>
+      <main className="container">
+        {enabled("banner") && <HeroSlider banners={data?.banners ?? []} />}
+
+        {(enabled("notices") || enabled("news")) && (
+          <section className="block" id="notice-board">
+            <div className="two-col">
+              <div className="card">
+                <div style={{ padding: "20px 20px 0" }}>
+                  <div className="sec-head" style={{ marginBottom: 6 }}>
+                    <h2 className="sec-title">নোটিশ বোর্ড</h2>
+                    <Link className="sec-more" href="/notices">সব দেখুন {ARROW}</Link>
+                  </div>
+                </div>
+                <ul className="notice-list">
+                  {notices.slice(0, 5).map((n) => (
+                    <li className="notice-item" key={n.id}>
+                      <div className="date-badge"><b>{bnDay(n.createdAt)}</b><span>{bnMonthYear(n.createdAt)}</span></div>
+                      <div>
+                        <h3><Link href={`/notices/${n.id}`}>{n.titleBn}</Link></h3>
+                        <div className="notice-meta">
+                          {n.isPinned && (
+                            <span className="pin" title="পিন করা">
+                              <svg className="icon" viewBox="0 0 24 24"><path d="M12 17v5M9 3h6l-1 7 3 3H7l3-3-1-7Z" /></svg>
+                            </span>
+                          )}
+                          {n.category && <span className="chip">{n.category}</span>}
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                  {notices.length === 0 && <li className="notice-item">কোনো বিজ্ঞপ্তি নেই।</li>}
+                </ul>
+              </div>
+
+              <div className="card">
+                <div style={{ padding: "20px 20px 0" }}>
+                  <div className="sec-head" style={{ marginBottom: 6 }}>
+                    <h2 className="sec-title">খবর</h2>
+                    <Link className="sec-more" href="/news">সব দেখুন {ARROW}</Link>
+                  </div>
+                </div>
+                <ul className="news-list">
+                  {news.slice(0, 4).map((item) => (
+                    <li className="news-item" key={item.id}>
+                      <img src={item.imageUrl ?? "https://placehold.co/172x128/21699D/FFFFFF?text=News"} alt="" loading="lazy" />
+                      <div>
+                        <h3><Link href="/news">{item.titleBn}</Link></h3>
+                        {item.publishedAt && <time>{bnDate(item.publishedAt)}</time>}
+                      </div>
+                    </li>
+                  ))}
+                  {news.length === 0 && <li className="news-item">কোনো খবর নেই।</li>}
+                </ul>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {enabled("messages") && (data?.messages?.length ?? 0) > 0 && (
+          <section className="block">
+            <div className="sec-head"><h2 className="sec-title">বাণী</h2></div>
+            <div className="msg-grid">
+              {data!.messages.map((m) => (
+                <article className="card msg-card" key={m.personNameBn}>
+                  <div className="who">
+                    {m.photoUrl ? (
+                      <img src={m.photoUrl} alt="" loading="lazy" />
+                    ) : (
+                      <div className="avatar" style={{ width: 84, height: 84, margin: 0, fontSize: 30 }}>{m.personNameBn.slice(0, 1)}</div>
+                    )}
+                    <div>
+                      <h3>{m.personNameBn}</h3>
+                      <div className="role">{m.designationBn}</div>
+                    </div>
+                  </div>
+                  <p>{m.body}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+
+        <section className="block">
+          <div className="stats-band">
+            <div className="stat">
+              <div className="ic"><svg className="icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8" /></svg></div>
+              <div><b>{data?.stats?.students != null ? toBn(data.stats.students.toLocaleString("en-US")) : "—"}</b><span>মোট শিক্ষার্থী</span></div>
+            </div>
+            <div className="stat">
+              <div className="ic"><svg className="icon" viewBox="0 0 24 24"><path d="M22 10 12 5 2 10l10 5 10-5ZM6 12.5V16c0 1.7 2.7 3 6 3s6-1.3 6-3v-3.5M22 10v6" /></svg></div>
+              <div><b>{data?.stats?.teachers != null ? toBn(data.stats.teachers) : "—"}</b><span>মোট শিক্ষক</span></div>
+            </div>
+            <div className="stat">
+              <div className="ic"><svg className="icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15ZM4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5" /></svg></div>
+              <div><b>৬ষ্ঠ–১০ম</b><span>শ্রেণিসমূহ</span></div>
+            </div>
+            <div className="stat">
+              <div className="ic"><svg className="icon" viewBox="0 0 24 24"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-4h6v4M9 11h.01M15 11h.01M12 14h.01" /></svg></div>
+              <div><b>{school?.foundedYear ? toBn(school.foundedYear) : "—"}</b><span>স্থাপিত</span></div>
+            </div>
+          </div>
+        </section>
+
+        {enabled("services") && (data?.services?.length ?? 0) > 0 && (
+          <section className="block">
+            <div className="sec-head"><h2 className="sec-title">সেবা বক্স</h2></div>
+            <div className="box-grid">
+              {data!.services.map((service, i) => (
+                <div className={GREEN_KEYWORDS.some((k) => service.titleBn.includes(k)) ? "card svc green" : "card svc"} key={service.id}>
+                  <div className="svc-head">
+                    <div className="svc-ic"><svg className="icon" viewBox="0 0 24 24">{SVC_ICONS[i % SVC_ICONS.length]}</svg></div>
+                    <h3>{service.titleBn}</h3>
+                  </div>
+                  <ul>
+                    {(data?.serviceLinks ?? []).filter((l) => l.serviceBoxId === service.id).slice(0, 4).map((l) => (
+                      <li key={l.id}><Link href={l.href}>{l.labelBn}</Link></li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {enabled("events") && (data?.events?.length ?? 0) > 0 && (
+          <section className="block">
+            <div className="sec-head">
+              <h2 className="sec-title">আসন্ন ইভেন্ট</h2>
+              <Link className="sec-more" href="/events">সব দেখুন {ARROW}</Link>
+            </div>
+            <div className="event-list">
+              {data!.events.slice(0, 4).map((event) => (
+                <div className="card event" key={event.id}>
+                  <div className="date-badge"><b>{bnDay(event.startsAt)}</b><span>{bnMonthYear(event.startsAt).split(" ")[0]}</span></div>
+                  <div>
+                    <h3>{event.titleBn}</h3>
+                    <p>
+                      <span>
+                        <svg className="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" /></svg>
+                        {bnDate(event.startsAt)}
+                      </span>
+                      <span>
+                        <svg className="icon" viewBox="0 0 24 24"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11Z" /><circle cx="12" cy="10" r="2.6" /></svg>
+                        {event.venue ?? "বিদ্যালয় প্রাঙ্গণ"}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {enabled("merit") && (data?.meritoriousStudents?.length ?? 0) > 0 && (
+          <section className="block">
+            <MeritCarousel students={data!.meritoriousStudents} />
+          </section>
+        )}
+
+        <section className="block" id="result-box">
+          <div className="rl-grid">
+            <HomeResultPanel />
+            <PortalLoginTabs />
+          </div>
+        </section>
+
+        {enabled("gallery") && galleries.length > 0 && (
+          <section className="block" id="gallery">
+            <div className="sec-head">
+              <h2 className="sec-title">ফটো গ্যালারি</h2>
+              <Link className="sec-more" href="/gallery">সব দেখুন {ARROW}</Link>
+            </div>
+            <div className="gal-grid">
+              {galleries.slice(0, 6).map((g) => (
+                <figure className="gal" style={{ margin: 0 }} key={g.id}>
+                  <img src={g.coverUrl ?? "https://placehold.co/600x450/21699D/FFFFFF?text=School"} alt={g.titleBn} loading="lazy" />
+                  <figcaption>{g.titleBn}</figcaption>
+                </figure>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {(enabled("downloads") || enabled("links")) && (
+          <section className="block" id="downloads">
+            <div className="two-col" style={{ gridTemplateColumns: "1fr 1fr" }}>
+              <div className="card">
+                <div style={{ padding: "20px 20px 0" }}>
+                  <div className="sec-head" style={{ marginBottom: 6 }}><h2 className="sec-title">গুরুত্বপূর্ণ লিঙ্ক</h2></div>
+                </div>
+                <ul className="link-list">
+                  {(data?.links ?? []).slice(0, 6).map((l) => (
+                    <li key={l.id}>
+                      <a href={l.url} target="_blank" rel="noopener">
+                        <svg className="icon" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3" /></svg>
+                        {l.labelBn}
+                      </a>
+                    </li>
+                  ))}
+                  {(data?.links?.length ?? 0) === 0 && <li>কোনো লিঙ্ক নেই।</li>}
+                </ul>
+              </div>
+              <div className="card">
+                <div style={{ padding: "20px 20px 0" }}>
+                  <div className="sec-head" style={{ marginBottom: 6 }}><h2 className="sec-title">ডাউনলোড</h2></div>
+                </div>
+                <ul className="dl-list">
+                  {(data?.downloads ?? []).slice(0, 4).map((d) => (
+                    <li key={d.id}>
+                      <div className="dl-ic"><svg className="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6ZM14 2v6h6" /></svg></div>
+                      <div><b>{d.titleBn}</b><small>{d.category}</small></div>
+                      <a className="btn btn-outline" href={d.fileUrl}>ডাউনলোড</a>
+                    </li>
+                  ))}
+                  {(data?.downloads?.length ?? 0) === 0 && <li>কোনো ডাউনলোড নেই।</li>}
+                </ul>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {(data?.quotes?.length ?? 0) > 0 && (
+          <section className="block">
+            <QuoteBand quotes={data!.quotes} />
+          </section>
+        )}
+
+        <section className="block">
+          <div className="sec-head"><h2 className="sec-title">ভিডিও ও ম্যাপ</h2></div>
+          <div className="vm-grid">
+            <Link href="/video-gallery" className="video-box">
+              <img src={galleries[0]?.coverUrl ?? "https://placehold.co/800x470/0F3151/FFFFFF?text=School"} alt="বিদ্যালয়ের ভিডিও গ্যালারি" loading="lazy" />
+              <span className="play-btn">
+                <svg className="icon" viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5-13-7.5Z" /></svg>
+              </span>
+              <span className="video-cap"><span>আমাদের বিদ্যালয় — ভিডিও গ্যালারি</span></span>
+            </Link>
+            <div className="map-box">
+              <iframe title="কুড়িগ্রাম সদরে বিদ্যালয়ের অবস্থান — মানচিত্র" src="https://www.openstreetmap.org/export/embed.html?bbox=89.6017%2C25.7655%2C89.6817%2C25.8455&layer=mapnik&marker=25.8055%2C89.6417" loading="lazy" />
+            </div>
+          </div>
+        </section>
+      </main>
+    </PublicShell>
+  );
 }
-function SectionTitle({ title, href }: { title: string; href?: string }) { return <div className="home-section-title"><h2>{title}</h2>{href && <Link href={href}>সব দেখুন →</Link>}</div>; }
-function Stat({ value, label }: { value: string; label: string }) { return <div><b>{value}</b><span>{label}</span></div>; }

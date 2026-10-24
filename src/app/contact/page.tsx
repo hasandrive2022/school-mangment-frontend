@@ -1,81 +1,36 @@
-"use client";
-import { FormEvent, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import Link from "next/link";
+import { publicApi, type HomeData } from "@/lib/api";
+import PublicShell from "@/components/site-chrome";
+import ContactClient from "./contact-client";
 
-export default function ContactPage() {
-  const [sent, setSent] = useState(false);
-  const [error, setError] = useState("");
-  async function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError("");
-    const form = new FormData(event.currentTarget);
-    const api =
-      process.env.NEXT_PUBLIC_BACKEND_API_URL ??
-      "https://school-mangment-backend.vercel.app/api/v1";
-    const schoolId = process.env.NEXT_PUBLIC_SCHOOL_ID ?? "";
-    const response = await fetch(
-      `${api}/public/content/contact-messages${schoolId ? `?schoolId=${encodeURIComponent(schoolId)}` : ""}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(Object.fromEntries(form)),
-      },
-    );
-    if (response.ok) {
-      setSent(true);
-      event.currentTarget.reset();
-    } else setError("বার্তা পাঠানো যায়নি। আবার চেষ্টা করুন।");
-  }
+export default async function ContactPage() {
+  const payload = await publicApi<HomeData>("/public/content/home");
+  const school = payload?.data.school;
+
   return (
-    <main className="public-page">
-      <div className="public-page-inner contact-layout">
-        <div>
-          <p className="public-kicker">সরাসরি যোগাযোগ</p>
-          <h1 className="public-page-title">যোগাযোগ</h1>
-          <p className="contact-intro">
-            বিদ্যালয়ের যেকোনো তথ্য, পরামর্শ বা প্রশ্নের জন্য আমাদের লিখুন।
-          </p>
-          <div className="contact-info-card">
-            <b>আদর্শ মডেল উচ্চ বিদ্যালয়</b>
-            <span>কুড়িগ্রাম সদর · EIIN 123456</span>
-            <span>রবিবার–বৃহস্পতিবার · সকাল ৯টা–বিকেল ৪টা</span>
-          </div>
+    <PublicShell>
+      <div className="pbanner">
+        <div className="container">
+          <h2>
+            <svg className="icon" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.4 2.1L8.1 10a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.6 2Z" /></svg>
+            যোগাযোগ
+          </h2>
+          <nav className="crumbs">
+            <Link href="/">হোম</Link>
+            <span className="sep">›</span>
+            <span className="cur">যোগাযোগ</span>
+          </nav>
         </div>
-        <form onSubmit={submit} className="public-card contact-form">
-          <h2>বার্তা পাঠান</h2>
-          <Field name="name" label="নাম" />
-          <Field name="mobile" label="মোবাইল" />
-          <Field name="email" label="ইমেইল" required={false} />
-          <Field name="subject" label="বিষয়" />
-          <label>
-            বার্তা
-            <Textarea name="message" required minLength={5} />
-          </label>
-          <Button type="submit">বার্তা পাঠান</Button>
-          {sent && (
-            <p className="contact-success">আপনার বার্তা গ্রহণ করা হয়েছে।</p>
-          )}
-          {error && <p className="contact-error">{error}</p>}
-        </form>
       </div>
-    </main>
-  );
-}
-function Field({
-  name,
-  label,
-  required = true,
-}: {
-  name: string;
-  label: string;
-  required?: boolean;
-}) {
-  return (
-    <label>
-      {label}
-      <Input name={name} required={required} />
-    </label>
+      <div className="container page-body">
+        <ContactClient
+          school={
+            school
+              ? { nameBn: school.nameBn, address: school.address, eiin: school.eiin, foundedYear: school.foundedYear }
+              : undefined
+          }
+        />
+      </div>
+    </PublicShell>
   );
 }

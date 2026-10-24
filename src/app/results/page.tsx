@@ -1,8 +1,64 @@
-"use client";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-type Result = { result?: { totalMarks: number; gpa: string; letter: string; isPassed: boolean; meritPosition: number | null }; exam?: { nameBn: string } };
-export default function PublicResultsPage() { const [registrationNumber, setRegistrationNumber] = useState(""); const [result, setResult] = useState<Result | null>(null); async function search() { const response = await fetch(`/api/public-results?registrationNumber=${encodeURIComponent(registrationNumber)}`); setResult(await response.json() as Result); } return <main className="public-page"><div className="public-page-inner result-search-page"><p className="public-breadcrumb">হোম → ফলাফল</p><h1 className="public-page-title">ফলাফল অনুসন্ধান</h1><Card className="result-search-card"><CardHeader><CardTitle>রেজিস্ট্রেশন নম্বর দিয়ে ফলাফল দেখুন</CardTitle></CardHeader><CardContent><div className="result-search-form"><Input placeholder="রেজিস্ট্রেশন নম্বর" value={registrationNumber} onChange={(e) => setRegistrationNumber(e.target.value)} /><Button type="button" onClick={() => void search()}>খুঁজুন</Button></div></CardContent></Card>{result?.result && <Card className="result-paper"><CardHeader><CardTitle>{result.exam?.nameBn}</CardTitle></CardHeader><CardContent><div className="result-summary"><div><small>মোট নম্বর</small><strong>{result.result.totalMarks}</strong></div><div><small>GPA</small><strong>{result.result.gpa}</strong></div><div><small>গ্রেড</small><strong>{result.result.letter}</strong></div><div><small>মেধাক্রম</small><strong>{result.result.meritPosition ?? "—"}</strong></div></div><Badge variant={result.result.isPassed ? "success" : "destructive"}>{result.result.isPassed ? "উত্তীর্ণ" : "অনুত্তীর্ণ"}</Badge><div><Button type="button" variant="outline" className="mt-5" onClick={() => window.print()}>প্রিন্ট / ডাউনলোড</Button></div></CardContent></Card>}</div></main>; }
+import Link from "next/link";
+import PublicShell from "@/components/site-chrome";
+import {
+  publicApi,
+  type PublicExamsResponse,
+  type PublicResultsResponse,
+} from "@/lib/api";
+import { ResultsClient } from "./results-client";
+
+export default async function PublicResultsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ examId?: string; classId?: string }>;
+}) {
+  const params = await searchParams;
+  const examsPayload = await publicApi<PublicExamsResponse>("/public/exams");
+  const exams = (examsPayload?.data ?? []).filter((e) => e.status === "published");
+
+  const examId =
+    params.examId && exams.some((e) => e.id === params.examId)
+      ? params.examId
+      : undefined;
+  const classId =
+    params.classId && exams.some((e) => e.classId === params.classId)
+      ? params.classId
+      : undefined;
+
+  const query = new URLSearchParams();
+  if (examId) query.set("examId", examId);
+  if (classId) query.set("classId", classId);
+  const qs = query.toString();
+  const resultsPayload = await publicApi<PublicResultsResponse>(
+    `/public/results${qs ? `?${qs}` : ""}`,
+  );
+
+  return (
+    <PublicShell>
+      <div className="pbanner">
+        <div className="container">
+          <h2>
+            <svg className="icon" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01" /></svg>
+            শ্রেণিভিত্তিক ফলাফল
+          </h2>
+          <nav className="crumbs">
+            <Link href="/">হোম</Link>
+            <span className="sep">›</span>
+            <span>ফলাফল</span>
+            <span className="sep">›</span>
+            <span className="cur">শ্রেণিভিত্তিক ফলাফল তালিকা</span>
+          </nav>
+        </div>
+      </div>
+      <main className="container page-body">
+        <ResultsClient
+          key={`${resultsPayload?.examId ?? "none"}-${classId ?? "all"}`}
+          exams={exams}
+          rows={resultsPayload?.data ?? []}
+          examId={resultsPayload?.examId ?? examId ?? null}
+          classId={classId ?? null}
+        />
+      </main>
+    </PublicShell>
+  );
+}

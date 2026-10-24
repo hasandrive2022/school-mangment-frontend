@@ -1,0 +1,55 @@
+/* Batch A (content pages) design additions — imported at end of globals.css */
+.sentinel-a {
+  color: inherit;
+}
+
+/* Notice list items rendered as <a> (Next Link) keep design colours */
+.dsite a.nitem {
+  color: inherit;
+  text-decoration: none;
+}
+.dsite a.nitem:hover {
+  color: inherit;
+}
+
+/* Honest empty state used where the API has no published rows */
+.dsite .a-empty {
+  background: #fff;
+  border: 1px dashed var(--line);
+  border-radius: var(--r-card);
+  padding: 28px 22px;
+  text-align: center;
+  color: var(--ink2);
+  font-size: 15px;
+}
+
+/* Club hero when the content page carries no image */
+.dsite .club-hero.a-noimg {
+  min-height: 180px;
+  background: linear-gradient(120deg, var(--p900), var(--p800) 55%, var(--p700));
+  display: flex;
+  align-items: flex-end;
+}
+.dsite .club-hero.a-noimg .cap {
+  position: static;
+  background: none;
+  padding: 26px;
+}
+
+/* News card button reset (in-page detail selection) */
+.dsite button.news-card {
+  font-family: inherit;
+  text-align: left;
+  width: 100%;
+  padding: 0;
+}
+
+/* Downloads list inside a card (dl-list language from the design system) */
+.dsite .a-dl-card {
+  padding: 6px 20px 14px;
+}
+
+/* Compliance section anchors clear the sticky navbar */
+.dsite .a-anchor {
+  scroll-margin-top: 84px;
+}

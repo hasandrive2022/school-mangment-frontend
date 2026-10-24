@@ -1,0 +1,38 @@
+/* Batch B (data/people pages) design additions — imported at end of globals.css */
+
+/* Attendance "leave" status mark (globals.css ships .mark-p / .mark-a only) */
+.dsite .mark-l {
+  background: #fdf0dc;
+  color: var(--warn);
+}
+
+/* Result search / result list: single-field search row inside .filter-card
+   (design uses .filter-grid with year/class/exam selects; the public results
+   API searches by registration number only, so the form is one field + button) */
+.dsite .rs-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: end;
+}
+
+@media (max-width: 640px) {
+  .dsite .rs-grid {
+    grid-template-columns: 1fr;
+  }
+  .dsite .rs-grid .btn {
+    width: 100%;
+  }
+}
+
+/* Round 2 re-wire: video cards are real links to the video URL */
+.dsite a.video-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Round 2 re-wire: stacked entries inside one routine cell */
+.dsite table.routine td div + div {
+  margin-top: 8px;
+}

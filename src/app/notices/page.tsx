@@ -1,5 +1,60 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { publicApi } from "@/lib/api";
-type Response = { data: Array<{ id: string; titleBn: string; category: string; details: string; isPinned: boolean; createdAt: string }> };
-export default async function NoticesPage() { const payload = await publicApi<Response>("/public/content/notices"); return <main className="min-h-screen bg-neutral-50"><Header title="বিজ্ঞপ্তি বোর্ড" /><div className="mx-auto max-w-[1200px] space-y-3 px-4 py-8">{(payload?.data ?? []).map((item) => <Link href={`/notices/${item.id}`} key={item.id} className="block rounded-lg border border-neutral-200 bg-white p-5 hover:border-primary-500"><span className="text-xs text-neutral-600">{item.category} · {new Date(item.createdAt).toLocaleDateString("bn-BD")}</span><h2 className="mt-1 text-lg font-semibold text-primary-800">{item.titleBn}{item.isPinned && " 📌"}</h2><p className="mt-2 text-sm text-neutral-600">{item.details}</p></Link>)}</div></main>; }
-function Header({ title }: { title: string }) { return <div className="bg-primary-800 px-4 py-10 text-white"><div className="mx-auto max-w-[1200px]"><h1 className="text-3xl font-bold">{title}</h1></div></div>; }
+import PublicShell from "@/components/site-chrome";
+import NoticesBrowser, { type NoticeRow } from "./notices-browser";
+
+type Response = { data: NoticeRow[] };
+
+export default async function NoticesPage() {
+  return (
+    <PublicShell>
+      <div className="pbanner">
+        <div className="container">
+          <h2>
+            <svg className="icon" viewBox="0 0 24 24"><path d="M4 22h16M6 2v20M18 2v20M6 8h12M6 13h12M6 18h8" /></svg>
+            নোটিশ বোর্ড
+          </h2>
+          <nav className="crumbs">
+            <Link href="/">হোম</Link>
+            <span className="sep">›</span>
+            <span className="cur">নোটিশ বোর্ড</span>
+          </nav>
+        </div>
+      </div>
+      <div className="container page-body">
+        <Suspense fallback={<NoticesFallback />}>
+          <NoticesContent />
+        </Suspense>
+      </div>
+    </PublicShell>
+  );
+}
+
+async function NoticesContent() {
+  const payload = await publicApi<Response>("/public/content/notices");
+  const rows = [...(payload?.data ?? [])].sort((a, b) => {
+    if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+
+  return rows.length > 0 ? (
+    <NoticesBrowser rows={rows} />
+  ) : (
+    <div className="a-empty">কোনো প্রকাশিত তথ্য নেই।</div>
+  );
+}
+
+function NoticesFallback() {
+  return (
+    <div className="notice-list" aria-busy="true" aria-label="নোটিশ লোড হচ্ছে">
+      {["১", "২", "৩"].map((key) => (
+        <div className="nitem notice-loading" key={key}>
+          <div className="skeleton skeleton-line skeleton-line-wide" />
+          <div className="skeleton skeleton-line" />
+          <div className="skeleton skeleton-line skeleton-line-short" />
+        </div>
+      ))}
+    </div>
+  );
+}
