@@ -1,4 +1,6 @@
+packages:
+  - "."
+
 allowBuilds:
-  msgpackr-extract: set this to true or false
-  sharp: false
-  unrs-resolver: false
+  msgpackr-extract: true
+  unrs-resolver: true
