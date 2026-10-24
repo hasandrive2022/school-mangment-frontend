@@ -20,18 +20,21 @@ export default function ContactClient({ school }: { school?: ContactSchool }) {
       process.env.NEXT_PUBLIC_BACKEND_API_URL ??
       "https://school-mangment-backend.vercel.app/api/v1";
     const schoolId = process.env.NEXT_PUBLIC_SCHOOL_ID ?? "a370abb2-8800-41e9-9b5a-3d22575b04f2";
-    const response = await fetch(
-      `${api}/public/content/contact-messages${schoolId ? `?schoolId=${encodeURIComponent(schoolId)}` : ""}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(Object.fromEntries(form)),
-      },
-    );
-    if (response.ok) {
+    try {
+      const response = await fetch(
+        `${api}/public/content/contact-messages${schoolId ? `?schoolId=${encodeURIComponent(schoolId)}` : ""}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(Object.fromEntries(form)),
+        },
+      );
+      if (!response.ok) throw new Error("request failed");
       setSent(true);
       event.currentTarget.reset();
-    } else setError("বার্তা পাঠানো যায়নি। আবার চেষ্টা করুন।");
+    } catch {
+      setError("বার্তা পাঠানো যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।");
+    }
   }
 
   const schoolName = school?.nameBn ?? "আদর্শ মডেল উচ্চ বিদ্যালয়";

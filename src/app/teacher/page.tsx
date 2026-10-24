@@ -41,6 +41,8 @@ export default function TeacherPortalPage() {
   const [error, setError] = useState("");
 
   async function login() {
+    setError("");
+    try {
     const response = await fetch(`${api}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -69,6 +71,9 @@ export default function TeacherPortalPage() {
     setRows(data.data ?? []);
     setProfile(profileData.data ?? null);
     setRoutine(routineData.data ?? []);
+    } catch {
+      setError("লগইন বা তথ্য লোড করা যায়নি। আবার চেষ্টা করুন।");
+    }
   }
 
   return (
