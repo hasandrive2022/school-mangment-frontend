@@ -42,6 +42,7 @@ export default function AdmissionClient({
   const [tracking, setTracking] = useState("");
   const [statusResult, setStatusResult] = useState<StatusResult | null>(null);
   const [statusError, setStatusError] = useState("");
+  const [submitError, setSubmitError] = useState("");
   const [photoUrl, setPhotoUrl] = useState("");
   const [photoError, setPhotoError] = useState("");
   const [fields, setFields] = useState<AdmissionField[]>(fallbackFields);
@@ -53,18 +54,28 @@ export default function AdmissionClient({
 
   useEffect(() => {
     void fetch(`${api}/public/admissions/settings?schoolId=${schoolId}`)
-      .then((response) => response.json())
-      .then((payload: { data?: { isOpen?: boolean; fields?: AdmissionField[] } }) => { setOpen(Boolean(payload.data?.isOpen)); if (payload.data?.fields?.length) setFields(payload.data.fields); });
+      .then(async (response) => {
+        if (!response.ok) throw new Error("request failed");
+        return response.json() as Promise<{ data?: { isOpen?: boolean; fields?: AdmissionField[] } }>;
+      })
+      .then((payload) => { setOpen(Boolean(payload.data?.isOpen)); if (payload.data?.fields?.length) setFields(payload.data.fields); })
+      .catch(() => setOpen(false));
   }, []);
 
   async function submit() {
-    const response = await fetch(`${api}/public/admissions?schoolId=${schoolId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ applicant: form, admissionClassId: form.admissionClassId, sessionId: form.sessionId, photoUrl }),
-    });
-    const payload = await response.json() as { data?: { trackingId?: string }; message?: string };
-    setTracking(payload.data?.trackingId ?? payload.message ?? "");
+    setSubmitError("");
+    try {
+      const response = await fetch(`${api}/public/admissions?schoolId=${schoolId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ applicant: form, admissionClassId: form.admissionClassId, sessionId: form.sessionId, photoUrl }),
+      });
+      const payload = await response.json().catch(() => null) as { data?: { trackingId?: string }; message?: string } | null;
+      if (!response.ok || !payload?.data?.trackingId) throw new Error(payload?.message ?? "request failed");
+      setTracking(payload.data.trackingId);
+    } catch {
+      setSubmitError("আবেদন জমা দেওয়া যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।");
+    }
   }
 
   async function lookup() {
@@ -173,6 +184,7 @@ export default function AdmissionClient({
                     {isUploading ? "ছবি আপলোড হচ্ছে…" : "আবেদন জমা দিন"}
                   </button>
                 </div>
+                {submitError && <div className="alert alert-red" style={{ marginTop: 14 }}><span>{submitError}</span></div>}
                 {tracking && (
                   <div className="adm-track">
                     <span>ট্র্যাকিং নম্বর</span>
@@ -232,7 +244,7 @@ export default function AdmissionClient({
                   )}
                 </tbody>
               </table>
-              <p className="small muted" style={{ margin: "12px 0 0" }}>আবেদনকারীর নাম ও শ্রেণি অবস্থা-যাচাই তথ্যে থাকে না — তাই সেগুলো এখানে দেখানো হয়নি।</p>
+              <p className="small muted" style={{ margin: "12px 0 0" }}>আবেদনকারীর নাম ও শ্রেণি অবস্থা-য���চাই তথ্যে থাকে না — তাই সেগুলো এখানে দেখানো হয়নি।</p>
             </div>
           );
         })()}

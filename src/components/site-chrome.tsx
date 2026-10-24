@@ -155,7 +155,7 @@ export function SiteFooter({ school, links }: { school?: School; links?: Home["l
       </div>
       <div className="foot-bottom">
         <div className="container">
-          <span>© {toBn(new Date().getFullYear())} {school?.nameBn ?? "আদর্শ মডেল উচ্চ বিদ্যালয়"} — সর্বস্বত্ব সংরক্ষিত।</span>
+          <span>© {toBn(2026)} {school?.nameBn ?? "আদর্শ মডেল উচ্চ বিদ্যালয়"} — সর্বস্বত্ব সংরক্ষিত।</span>
           <span>কারিগরি সহায়তায়: <a href="#">স্কুল ম্যানেজমেন্ট সিস্টেম</a></span>
         </div>
       </div>

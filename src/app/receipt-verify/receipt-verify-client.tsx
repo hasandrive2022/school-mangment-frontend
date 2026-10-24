@@ -4,7 +4,7 @@ import Link from "next/link";
 const api =
   process.env.NEXT_PUBLIC_BACKEND_API_URL ??
   "https://school-mangment-backend.vercel.app/api/v1";
-export default function ReceiptVerifyClient() { const [number, setNumber] = useState(""); const [code, setCode] = useState(""); const [result, setResult] = useState<boolean | null>(null); async function verify() { const r = await fetch(`${api}/public/receipts/verify?receiptNumber=${encodeURIComponent(number)}&verifyCode=${encodeURIComponent(code)}`); const p = await r.json() as { valid?: boolean }; setResult(Boolean(p.valid)); } return (
+export default function ReceiptVerifyClient() { const [number, setNumber] = useState(""); const [code, setCode] = useState(""); const [result, setResult] = useState<boolean | null>(null); const [error, setError] = useState(""); async function verify() { setError(""); setResult(null); try { const r = await fetch(`${api}/public/receipts/verify?receiptNumber=${encodeURIComponent(number)}&verifyCode=${encodeURIComponent(code)}`); const p = await r.json() as { valid?: boolean }; if (!r.ok) throw new Error("request failed"); setResult(Boolean(p.valid)); } catch { setError("রসিদ যাচাই করা যায়নি। আবার চেষ্টা করুন।"); } } return (
   <>
     <div className="pbanner">
       <div className="container">
@@ -30,6 +30,7 @@ export default function ReceiptVerifyClient() { const [number, setNumber] = useS
           <input id="receipt-code" value={code} onChange={(e) => setCode(e.target.value)} placeholder="যাচাই কোড" />
         </div>
         <button className="btn btn-primary btn-lg" type="button" style={{ width: "100%", justifyContent: "center" }} onClick={() => void verify()}>যাচাই করুন</button>
+        {error && <div className="alert alert-red" style={{ marginTop: 16, marginBottom: 0 }}><span>{error}</span></div>}
         {result !== null && (
           <div className={`alert ${result ? "alert-green" : "alert-red"}`} style={{ marginTop: 16, marginBottom: 0 }}>
             {result ? (
