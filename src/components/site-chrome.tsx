@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import Link from "next/link";
 import { publicApi, type HomeData } from "@/lib/api";
 import { toBn } from "@/lib/bn";
@@ -167,7 +167,7 @@ export function SiteFooter({ school, links }: { school?: School; links?: Home["l
  * Public-site shell: design chrome (topbar / header / nav / ticker / footer)
  * around every public page. Data comes from the home payload.
  */
-export default async function PublicShell({ children }: { children: ReactNode }) {
+async function PublicShellContent({ children }: { children: ReactNode }) {
   const payload = await publicApi<HomeData>("/public/content/home");
   const data = payload?.data;
   const blocks = data?.blocks ?? [];
@@ -193,5 +193,17 @@ export default async function PublicShell({ children }: { children: ReactNode })
       {children}
       <SiteFooter school={data?.school} links={data?.links} />
     </div>
+  );
+}
+
+function PublicShellLoading({ children }: { children: ReactNode }) {
+  return <div className="dsite">{children}</div>;
+}
+
+export default function PublicShell({ children }: { children: ReactNode }) {
+  return (
+    <Suspense fallback={<PublicShellLoading>{children}</PublicShellLoading>}>
+      <PublicShellContent>{children}</PublicShellContent>
+    </Suspense>
   );
 }
