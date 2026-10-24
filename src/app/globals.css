@@ -1428,6 +1428,36 @@ body {
   background-size: 200% 100%;
   animation: loading-shimmer 1.4s infinite;
 }
+.page-skeleton {
+  display: grid;
+  gap: 20px;
+}
+.skeleton-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.skeleton-short { width: 220px; }
+.skeleton-control { width: 180px; height: 42px; border-radius: 6px; }
+.skeleton-table {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fff;
+}
+.skeleton-table-head { height: 30px; border-radius: 5px; }
+.skeleton-row { height: 18px; border-radius: 4px; }
+.skeleton-lead { width: min(520px, 90%); height: 12px; }
+.skeleton-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.skeleton-field { height: 48px; border-radius: 6px; }
+.skeleton-button { width: 150px; height: 44px; border-radius: 6px; }
 @keyframes loading-shimmer {
   to {
     background-position: -200% 0;
@@ -1440,6 +1470,18 @@ body {
 }
 @media (max-width: 600px) {
   .loading-grid {
+    grid-template-columns: 1fr;
+  }
+  .skeleton-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .skeleton-short,
+  .skeleton-control,
+  .skeleton-button {
+    width: 100%;
+  }
+  .skeleton-form-grid {
     grid-template-columns: 1fr;
   }
   .admin-loading {
