@@ -3,13 +3,35 @@ const apiUrl =
   "https://school-mangment-backend.vercel.app/api/v1";
 const schoolId = process.env.NEXT_PUBLIC_SCHOOL_ID ?? "a370abb2-8800-41e9-9b5a-3d22575b04f2";
 
-export async function publicApi<T>(path: string): Promise<T | null> {
+export type PublicApiOptions = {
+  revalidate?: number;
+  cache?: "no-store";
+  timeoutMs?: number;
+};
+
+const PUBLIC_CACHE_SECONDS = 300;
+
+export async function publicApi<T>(path: string, options: PublicApiOptions = {}): Promise<T | null> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), options.timeoutMs ?? 8000);
+
   try {
     const joiner = path.includes("?") ? "&" : "?";
-    const response = await fetch(`${apiUrl}${path}${schoolId ? `${joiner}schoolId=${encodeURIComponent(schoolId)}` : ""}`, { cache: "no-store" });
+    const response = await fetch(`${apiUrl}${path}${schoolId ? `${joiner}schoolId=${encodeURIComponent(schoolId)}` : ""}`, {
+      ...(options.cache === "no-store" ? { cache: "no-store" as const } : { next: { revalidate: options.revalidate ?? PUBLIC_CACHE_SECONDS } }),
+      signal: controller.signal,
+    });
     if (!response.ok) return null;
     return (await response.json()) as T;
-  } catch { return null; }
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export function publicHome<T = HomeData>(options: PublicApiOptions = {}) {
+  return publicApi<T>("/public/content/home", { revalidate: 60, ...options });
 }
 
 export type HomeData = { data: { school?: { nameBn: string; nameEn: string; eiin: string; address: string; foundedYear: string | null; logoUrl: string | null; phone: string | null; email: string | null }; stats?: { students: number; teachers: number }; teachers: Array<{ id: string; nameBn: string; username: string | null }>; meritoriousStudents: Array<{ id: string; nameBn: string; registrationNumber: string | null; photoUrl: string | null; totalMarks: number | null; gpa: string | null }>; blocks: Array<{ key: string; titleBn: string; isEnabled: boolean; orderIndex: number }>; menuItems: Array<{ id: string; labelBn: string; href: string; isVisible: boolean; orderIndex: number }>; banners: Array<{ imageUrl: string; titleBn: string; captionBn: string | null; href: string | null }>; pages: Array<{ id: string; slug: string; titleBn: string; body: string }>; notices: Array<{ id: string; titleBn: string; category: string; isPinned: boolean; createdAt: string; details: string }>; news: Array<{ id: string; titleBn: string; summary: string; imageUrl: string | null; publishedAt: string | null }>; events: Array<{ id: string; titleBn: string; details: string; venue: string | null; startsAt: string }>; services: Array<{ id: string; titleBn: string; icon: string }>; serviceLinks: Array<{ id: string; serviceBoxId: string; labelBn: string; href: string }>; galleries: Array<{ id: string; titleBn: string; coverUrl: string | null }>; downloads: Array<{ id: string; titleBn: string; fileUrl: string; category: string }>; links: Array<{ id: string; labelBn: string; url: string }>; quotes: Array<{ textBn: string; authorBn: string | null }>; messages: Array<{ personNameBn: string; designationBn: string; body: string; photoUrl: string | null }> } };

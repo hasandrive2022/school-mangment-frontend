@@ -1,6 +1,6 @@
 import { Suspense, type ReactNode } from "react";
 import Link from "next/link";
-import { publicApi, type HomeData } from "@/lib/api";
+import { publicHome, type HomeData } from "@/lib/api";
 import { toBn } from "@/lib/bn";
 import { SiteNav, type NavItem } from "./site-nav";
 import { Ticker, AnthemBox, type TickerItem } from "./site-ticker";
@@ -168,7 +168,7 @@ export function SiteFooter({ school, links }: { school?: School; links?: Home["l
  * around every public page. Data comes from the home payload.
  */
 async function PublicShellContent({ children }: { children: ReactNode }) {
-  const payload = await publicApi<HomeData>("/public/content/home");
+  const payload = await publicHome<HomeData>();
   const data = payload?.data;
   const blocks = data?.blocks ?? [];
   const blockEnabled = (key: string) => {

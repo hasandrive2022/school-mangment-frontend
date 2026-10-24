@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
-import { publicApi, type HomeData } from "@/lib/api";
+import { publicHome, type HomeData } from "@/lib/api"
 import { bnDay, bnMonthYear, bnDate, toBn } from "@/lib/bn";
 import PublicShell from "@/components/site-chrome";
 import { HeroSlider, MeritCarousel, QuoteBand, HomeResultPanel, PortalLoginTabs } from "@/components/home-widgets";
@@ -21,7 +21,7 @@ const SVC_ICONS = [
 const GREEN_KEYWORDS = ["তথ্য অধিকার", "অভিযোগ", "কর্মসম্পাদনা", "শুদ্ধাচার", "সেবা প্রদান", "উদ্ভাবনী", "সিটিজেন"];
 
 export default async function HomePage() {
-  const payload = await publicApi<HomeData>("/public/content/home");
+  const payload = await publicHome<HomeData>();
   const data = payload?.data;
   const blocks = [...(data?.blocks ?? [])].filter((b) => b.isEnabled).sort((a, b) => a.orderIndex - b.orderIndex);
   const enabled = (key: string) => blocks.some((b) => b.key === key);
