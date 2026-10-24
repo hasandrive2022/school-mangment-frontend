@@ -2277,6 +2277,120 @@ body {
   .dsite .public-card {
     padding: 16px;
   }
+}
+
+/* Unified polish for every public route: clearer hierarchy, editorial rhythm, and touch-first responsive behavior. */
+.dsite {
+  background: linear-gradient(180deg, #eef4f8 0, var(--bg) 280px);
+  color: var(--ink);
+}
+.dsite .site-header {
+  background: rgba(255, 255, 255, .96);
+  backdrop-filter: blur(12px);
+}
+.dsite .site-header .container {
+  min-height: 104px;
+}
+.dsite .navbar {
+  background: linear-gradient(100deg, var(--p900), var(--p800));
+}
+.dsite .nav-list > li > a {
+  transition: background .18s ease, color .18s ease;
+}
+.dsite .nav-list > li > a:hover,
+.dsite .nav-list > li > a:focus-visible {
+  background: var(--p600);
+  outline: none;
+}
+.dsite .page-head,
+.dsite .hero,
+.dsite .public-page-inner {
+  animation: dsite-rise .45s ease both;
+}
+.dsite .page-head {
+  border-radius: 16px;
+  box-shadow: 0 10px 32px rgba(15, 49, 81, .09);
+}
+.dsite .card,
+.dsite .public-card,
+.dsite .fact,
+.dsite .pcard,
+.dsite .nitem,
+.dsite .album-card,
+.dsite .video-card,
+.dsite .link-card {
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(15, 49, 81, .07);
+}
+.dsite .card:hover,
+.dsite .public-card:hover,
+.dsite .fact:hover,
+.dsite .pcard:hover,
+.dsite .nitem:hover,
+.dsite .album-card:hover,
+.dsite .video-card:hover,
+.dsite .link-card:hover {
+  border-color: rgba(33, 105, 157, .35);
+  box-shadow: 0 12px 28px rgba(15, 49, 81, .12);
+}
+.dsite .sec-head {
+  margin-top: 36px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(33, 105, 157, .16);
+}
+.dsite .sec-title {
+  letter-spacing: -.01em;
+}
+.dsite .btn {
+  min-height: 42px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(15, 49, 81, .08);
+}
+.dsite input:focus-visible,
+.dsite select:focus-visible,
+.dsite textarea:focus-visible,
+.dsite button:focus-visible,
+.dsite a:focus-visible {
+  outline: 3px solid rgba(55, 152, 234, .35);
+  outline-offset: 2px;
+}
+.dsite .tbl-wrap,
+.dsite .table-wrap {
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--card);
+}
+@keyframes dsite-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (max-width: 900px) {
+  .dsite .site-header .container { min-height: 82px; }
+  .dsite .gov-badge { padding: 8px 10px; }
+  .dsite .page-head { border-radius: 12px; }
+}
+@media (max-width: 640px) {
+  .dsite { background: var(--bg); }
+  .dsite .site-header .container { min-height: 72px; padding-block: 10px; }
+  .dsite .brand { gap: 10px; }
+  .dsite .brand .logo { width: 54px; height: 54px; }
+  .dsite .brand h1 { font-size: 19px; line-height: 1.2; }
+  .dsite .gov-badge { display: none; }
+  .dsite .navbar .container { padding-inline: 14px; }
+  .dsite .nav-list { display: none; }
+  .dsite .hamburger { display: inline-flex; }
+  .dsite .sec-head { margin-top: 24px; padding-bottom: 8px; }
+  .dsite .sec-title { font-size: 19px; }
+  .dsite .btn { min-height: 44px; }
+  .dsite .form-grid { grid-template-columns: 1fr !important; }
+  .dsite .summary-row { grid-template-columns: 1fr !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dsite .page-head,
+  .dsite .hero,
+  .dsite .public-page-inner { animation: none; }
+}
+@media (max-width: 640px) {
   .dsite .filter-grid,
   .dsite .filter-grid.f3,
   .dsite .filter-grid.f4 {
