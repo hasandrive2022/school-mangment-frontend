@@ -10,9 +10,34 @@ import { ResultsClient } from "./results-client";
 
 function ResultsLoading() {
   return (
-    <div className="card loading-card" aria-busy="true" aria-live="polite">
-      <span className="loading-spinner" aria-hidden="true" />
-      <span>ফলাফল লোড হচ্ছে…</span>
+    <div className="results-loading" aria-busy="true" aria-live="polite">
+      <span className="sr-only">ফলাফল লোড হচ্ছে…</span>
+      <div className="card filter-card results-filter-skeleton">
+        <div className="skeleton-field" />
+        <div className="skeleton-field" />
+        <div className="skeleton-button" />
+      </div>
+      <div className="summary-row results-summary-skeleton">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div className="fact" key={index}>
+            <div className="skeleton-circle" />
+            <div className="skeleton-copy">
+              <span />
+              <span />
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="tbl-wrap skeleton-results-table">
+        <div className="skeleton-table-head" />
+        {Array.from({ length: 6 }).map((_, index) => (
+          <div className="skeleton-table-row" key={index}>
+            {Array.from({ length: 8 }).map((__, cellIndex) => (
+              <span key={cellIndex} />
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
