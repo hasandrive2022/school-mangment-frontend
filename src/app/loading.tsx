@@ -1,7 +1,3 @@
-"use client";
-
-import { usePathname } from "next/navigation";
-
 function Line({ className = "" }: { className?: string }) {
   return <div className={`loading-bar ${className}`} aria-hidden="true" />;
 }
@@ -40,15 +36,13 @@ function FormSkeleton() {
 }
 
 export default function Loading() {
-  const pathname = usePathname();
-  const isResults = pathname === "/results" || pathname.startsWith("/result-search");
-  const isForm = ["/admission", "/contact", "/compliance", "/receipt-verify"].some((route) => pathname.startsWith(route));
-
   return (
     <main aria-busy="true" aria-live="polite" className="public-page">
       <div className="public-page-inner loading-state">
         <span className="sr-only">পৃষ্ঠা লোড হচ্ছে</span>
-        {isResults ? <ResultsSkeleton /> : isForm ? <FormSkeleton /> : <><Line className="loading-title" /><CardGrid /></>}
+        <Line className="loading-title" />
+        <Line className="skeleton-lead" />
+        <CardGrid count={3} />
       </div>
     </main>
   );
