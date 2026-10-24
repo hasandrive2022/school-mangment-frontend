@@ -13,7 +13,7 @@ export default function ComplianceForm() {
     const api =
       process.env.NEXT_PUBLIC_BACKEND_API_URL ??
       "https://school-mangment-backend.vercel.app/api/v1";
-    const schoolId = process.env.NEXT_PUBLIC_SCHOOL_ID ?? "";
+    const schoolId = process.env.NEXT_PUBLIC_SCHOOL_ID ?? "a370abb2-8800-41e9-9b5a-3d22575b04f2";
     const response = await fetch(
       `${api}/public/content/contact-messages${schoolId ? `?schoolId=${encodeURIComponent(schoolId)}` : ""}`,
       {
