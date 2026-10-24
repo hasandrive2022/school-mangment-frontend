@@ -24,6 +24,8 @@ export const metadata: Metadata = {
   description: "বিদ্যালয়ের প্রতিষ্ঠা, EIIN, শিক্ষার্থী ও শিক্ষক সংখ্যাসহ এক নজরে সব তথ্য।",
 };
 
+export const instant = false;
+
 export default async function AtAGlancePage() {
   const [pagesPayload, homePayload, studentsPayload] = await Promise.all([
     publicApi<PagesResponse>("/public/content/pages"),
