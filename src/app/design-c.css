@@ -258,9 +258,6 @@
 .sport .cd-cell{min-width:60px}
 .sport .gallery-title small{display:none}
 }
-@media print{
-.sport .gallery-bar, .sport .bottomnav, .sport .toolbar{display:none!important}
-}
 
 /* ---- Batch C overrides on the scoped portal CSS ---- */
 /* The artifact CSS assumed a 57px gallery switcher bar above the portal;
@@ -307,6 +304,230 @@
 .dsite .slide .img-txt>span{font-size:110px;color:rgba(255,255,255,.22)}
 /* Homepage news list thumbnail (was an 86x64 img) */
 .dsite .news-item .img-txt{width:86px;height:64px;border-radius:6px;flex:none}
+
+@page student-marksheet {
+  size: A4 landscape;
+  margin: 12mm;
+}
+
+@page student-receipt {
+  size: A4 portrait;
+  margin: 14mm;
+}
+
+@media print {
+  .sport .gallery-bar,
+  .sport .topbar,
+  .sport .sidebar,
+  .sport .bottomnav,
+  .sport .toolbar {
+    display: none !important;
+  }
+
+  .sport {
+    min-height: 0 !important;
+    background: #fff !important;
+    color: #1a1a1a !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .sport .shell {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+
+  .sport .shell-body {
+    display: block !important;
+  }
+
+  .sport .content {
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .sport .paper {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    color: #1a1a1a !important;
+  }
+
+  .sport .paper.paper-marksheet {
+    page: student-marksheet;
+  }
+
+  .sport .paper.paper-receipt {
+    page: student-receipt;
+  }
+
+  .sport .paper-head {
+    margin-bottom: 14px !important;
+    padding-bottom: 12px !important;
+    border-color: #0f3151 !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .sport .paper-head h2 {
+    color: #0f3151 !important;
+    font-size: 22px !important;
+  }
+
+  .sport .paper-head .en,
+  .sport .paper-head .addr {
+    color: #475569 !important;
+  }
+
+  .sport .paper-title {
+    background: #fff !important;
+    border: 1px solid #0f3151 !important;
+    border-radius: 4px !important;
+    color: #0f3151 !important;
+  }
+
+  .sport .ms-info {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 3px 20px !important;
+    font-size: 11pt !important;
+  }
+
+  .sport .ms-info div {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .sport .ms-info span {
+    min-width: 108px !important;
+    color: #475569 !important;
+  }
+
+  .sport .paper .tbl-wrap {
+    overflow: visible !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+    box-shadow: none !important;
+  }
+
+  .sport .paper table.tbl {
+    width: 100% !important;
+    min-width: 0 !important;
+    border-collapse: collapse !important;
+    table-layout: fixed !important;
+    font-size: 9pt !important;
+  }
+
+  .sport .paper table.tbl thead {
+    display: table-header-group !important;
+  }
+
+  .sport .paper table.tbl tbody {
+    display: table-row-group !important;
+  }
+
+  .sport .paper table.tbl tr {
+    display: table-row !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .sport .paper table.tbl th,
+  .sport .paper table.tbl td {
+    display: table-cell !important;
+    padding: 6px !important;
+    border: 1px solid #cbd5e1 !important;
+    background: #fff !important;
+    color: #1a1a1a !important;
+    line-height: 1.35 !important;
+    white-space: normal !important;
+  }
+
+  .sport .paper-marksheet table.tbl th:nth-child(1),
+  .sport .paper-marksheet table.tbl td:nth-child(1) {
+    width: 28%;
+    text-align: left !important;
+  }
+
+  .sport .paper-marksheet table.tbl th:nth-child(2),
+  .sport .paper-marksheet table.tbl td:nth-child(2),
+  .sport .paper-marksheet table.tbl th:nth-child(3),
+  .sport .paper-marksheet table.tbl td:nth-child(3),
+  .sport .paper-marksheet table.tbl th:nth-child(4),
+  .sport .paper-marksheet table.tbl td:nth-child(4) {
+    width: 14%;
+  }
+
+  .sport .paper-marksheet table.tbl th:nth-child(5),
+  .sport .paper-marksheet table.tbl td:nth-child(5) {
+    width: 12%;
+  }
+
+  .sport .paper-marksheet table.tbl th:nth-child(6),
+  .sport .paper-marksheet table.tbl td:nth-child(6),
+  .sport .paper-marksheet table.tbl th:nth-child(7),
+  .sport .paper-marksheet table.tbl td:nth-child(7) {
+    width: 9%;
+  }
+
+  .sport .paper-marksheet table.tbl th:not(:first-child),
+  .sport .paper-marksheet table.tbl td:not(:first-child) {
+    text-align: center !important;
+  }
+
+  .sport .paper .result-strip {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .sport .paper .result-strip .cell {
+    min-width: 0 !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 4px !important;
+    background: #fff !important;
+    padding: 8px 5px !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .sport .paper .result-strip .cell b {
+    color: #0f3151 !important;
+    font-size: 13pt !important;
+  }
+
+  .sport .paper .result-strip .cell span,
+  .sport .paper .remark {
+    color: #334155 !important;
+  }
+
+  .sport .paper .remark {
+    border: 1px solid #cbd5e1 !important;
+    border-left: 3px solid #1e7a46 !important;
+    border-radius: 4px !important;
+    background: #fff !important;
+  }
+
+  .sport .paper .paper-sign {
+    margin-top: 30px !important;
+    color: #1a1a1a !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .sport .paper .paper-sign .line {
+    border-color: #1a1a1a !important;
+  }
+}
 .dsite .news-item .img-txt>span{font-size:26px}
 /* Homepage gallery tile + video box (absolute fill of the aspect-ratio figure) */
 .dsite .gal .img-txt{position:absolute;inset:0}
