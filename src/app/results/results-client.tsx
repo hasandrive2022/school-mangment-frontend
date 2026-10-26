@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { PublicExam, PublicResultRow } from "@/lib/api";
+import type { HomeData, PublicExam, PublicResultRow } from "@/lib/api";
 import { toBn } from "@/lib/bn";
 
 /**
@@ -33,11 +33,13 @@ export function ResultsClient({
   rows,
   examId,
   classId,
+  school,
 }: {
   exams: PublicExam[];
   rows: PublicResultRow[];
   examId: string | null;
   classId: string | null;
+  school: NonNullable<HomeData["data"]["school"]> | null;
 }) {
   const router = useRouter();
   // Filter defaults (Round 6, P7): the exam selector must reflect the
@@ -46,6 +48,7 @@ export function ResultsClient({
   // the browser display the first option while state says otherwise.
   const [selExam, setSelExam] = useState<string>(examId ?? exams[0]?.id ?? "");
   const [selClass, setSelClass] = useState<string>(classId ?? "all");
+  const [printDate, setPrintDate] = useState("");
 
   // Class options are scoped to the SELECTED exam (each exam belongs to
   // one class) so the class filter can never contradict the exam filter.
@@ -94,6 +97,22 @@ export function ResultsClient({
     return { total, passed, gpaFive, avg, passPct };
   }, [rows, rankedRows]);
 
+  const selectedExam = exams.find((exam) => exam.id === selExam);
+  const selectedClassLabel =
+    selClass === "all"
+      ? selectedExam?.classNameBn ?? "সকল শ্রেণি"
+      : classOptions.find((option) => option.id === selClass)?.label ??
+        "নির্বাচিত শ্রেণি";
+  const printResults = () => {
+    setPrintDate(
+      new Intl.DateTimeFormat("bn-BD", {
+        dateStyle: "long",
+        timeStyle: "short",
+      }).format(new Date()),
+    );
+    window.requestAnimationFrame(() => window.print());
+  };
+
   if (exams.length === 0) {
     return (
       <div className="alert alert-blue">
@@ -104,8 +123,44 @@ export function ResultsClient({
   }
 
   return (
-    <>
-      <div className="card filter-card">
+    <div className="results-report">
+      <header className="results-print-header">
+        <div className="results-print-identity">
+          {school?.logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className="results-print-logo" src={school.logoUrl} alt="" />
+          ) : null}
+          <div className="results-print-school-copy">
+            <h1>{school?.nameBn || "বিদ্যালয়"}</h1>
+            {school?.nameEn ? <p className="results-print-school-en">{school.nameEn}</p> : null}
+            <p className="results-print-school-meta">
+              {[school?.address, school?.eiin ? `EIIN: ${toBn(school.eiin)}` : null]
+                .filter(Boolean)
+                .join(" · ")}
+            </p>
+          </div>
+        </div>
+        <div className="results-print-title">
+          <span>বিদ্যালয়ের একাডেমিক প্রতিবেদন</span>
+          <h2>পরীক্ষার ফলাফল</h2>
+        </div>
+        <dl className="results-print-meta">
+          <div>
+            <dt>পরীক্ষা</dt>
+            <dd>{selectedExam?.nameBn ?? "প্রকাশিত পরীক্ষা"}</dd>
+          </div>
+          <div>
+            <dt>শিক্ষাবর্ষ</dt>
+            <dd>{selectedExam?.sessionYear != null ? toBn(selectedExam.sessionYear) : "—"}</dd>
+          </div>
+          <div>
+            <dt>শ্রেণি</dt>
+            <dd>{selectedClassLabel}</dd>
+          </div>
+        </dl>
+        <p className="results-print-date">মুদ্রণের তারিখ: {printDate || "—"}</p>
+      </header>
+      <div className="card filter-card results-filter-card">
         <form
           className="filter-grid f3"
           onSubmit={(e) => {
@@ -156,7 +211,7 @@ export function ResultsClient({
 
       {rows.length > 0 ? (
         <>
-          <div className="summary-row">
+          <div className="summary-row results-summary">
             <div className="fact">
               <div className="fi">
                 <svg className="icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9.5" cy="7.5" r="3.5" /></svg>
@@ -186,8 +241,8 @@ export function ResultsClient({
             </div>
           </div>
 
-          <div className="tbl-wrap">
-            <table className="data ct">
+          <div className="tbl-wrap results-table-wrap">
+            <table className="data ct results-print-table">
               <thead>
                 <tr>
                   <th>মেধাক্রম</th>
@@ -243,10 +298,24 @@ export function ResultsClient({
             </table>
           </div>
 
-          <div style={{ marginTop: 14 }}>
-            <button className="btn btn-outline btn-sm" type="button" onClick={() => window.print()}>
-              <svg className="icon" viewBox="0 0 24 24" width="16"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2m-12-3h12v6H6z" /></svg>
-              প্রিন্ট করুন
+          <div className="results-print-approval">
+            <div className="results-signoff">
+              <span className="results-signoff-line" />
+              <strong>প্রধান শিক্ষক/শিক্ষিকা</strong>
+            </div>
+            <div className="results-signoff">
+              <span className="results-signoff-line" />
+              <strong>বিদ্যালয়ের সীল</strong>
+            </div>
+          </div>
+          <p className="results-print-note">
+            এই প্রতিবেদনটি নির্বাচিত পরীক্ষা ও শ্রেণির প্রকাশিত ফলাফলের ভিত্তিতে তৈরি।
+          </p>
+          <div className="results-print-action">
+            <p>প্রিন্ট ডায়ালগে “Save as PDF” নির্বাচন করে PDF সংরক্ষণ করুন।</p>
+            <button className="btn btn-outline btn-sm" type="button" onClick={printResults}>
+              <svg className="icon" viewBox="0 0 24 24" width="16"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5h-2m-12-3h12v6H6z" /></svg>
+              সব ফলাফল প্রিন্ট করুন
             </button>
           </div>
         </>
@@ -256,6 +325,6 @@ export function ResultsClient({
           <span>নির্বাচিত পরীক্ষা/শ্রেণির জন্য কোনো ফলাফল পাওয়া যায়নি।</span>
         </div>
       )}
-    </>
+    </div>
   );
 }
