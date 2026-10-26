@@ -219,7 +219,6 @@ export function ResultSearchClient({
               {studentName && (
                 <div><span>শিক্ষার্থীর নাম</span><b>{studentName}</b></div>
               )}
-              <div><span>রেজিস্ট্রেশন নং</span><b>{payload?.student?.registrationNumber ?? registrationNumber}</b></div>
               {payload?.student?.classNameBn && (
                 <div><span>শ্রেণি</span><b>{payload.student.classNameBn}</b></div>
               )}

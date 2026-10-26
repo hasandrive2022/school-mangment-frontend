@@ -73,7 +73,6 @@ export default function StudentsBrowser({
               <th>রোল</th>
               <th>শ্রেণি</th>
               <th>শাখা</th>
-              <th>রেজিস্ট্রেশন নং</th>
             </tr>
           </thead>
           <tbody>
@@ -90,14 +89,11 @@ export default function StudentsBrowser({
                 </td>
                 <td data-label="শ্রেণি">{student.classBn ?? "—"}</td>
                 <td data-label="শাখা">{student.sectionBn ?? "—"}</td>
-                <td data-label="রেজিস্ট্রেশন নং" className="num">
-                  {student.registrationNumber ? toBn(student.registrationNumber) : "—"}
-                </td>
               </tr>
             ))}
             {visible.length === 0 && (
               <tr>
-                <td colSpan={5} style={{ textAlign: "center", color: "var(--ink2)" }}>
+                <td colSpan={4} style={{ textAlign: "center", color: "var(--ink2)" }}>
                   কোনো শিক্ষার্থী পাওয়া যায়নি।
                 </td>
               </tr>

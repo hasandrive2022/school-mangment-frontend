@@ -247,7 +247,6 @@ export function ResultsClient({
                 <tr>
                   <th>মেধাক্রম</th>
                   <th>শিক্ষার্থী</th>
-                  <th>রেজি. নং</th>
                   <th>মোট নম্বর</th>
                   <th>GPA</th>
                   <th>গ্রেড</th>
@@ -266,9 +265,6 @@ export function ResultsClient({
                         <span className="avatar av-txt">{row.nameBn?.charAt(0) ?? "শি"}</span>
                         <b>{row.nameBn}</b>
                       </div>
-                    </td>
-                    <td data-label="রেজি. নং" className="num">
-                      {row.registrationNumber ? toBn(row.registrationNumber) : "—"}
                     </td>
                     <td data-label="মোট নম্বর" className="num">{toBn(row.totalMarks)}</td>
                     <td data-label="GPA">

@@ -119,8 +119,7 @@ export function MeritCarousel({ students }: { students: MeritStudent[] }) {
                 )}
                 <h3>{s.nameBn}</h3>
                 <div className="cls">
-                  রেজিস্ট্রেশন: {s.registrationNumber ? toBn(s.registrationNumber) : "—"}
-                  {s.totalMarks != null && <> · মোট নম্বর {toBn(s.totalMarks)}</>}
+                  {s.totalMarks != null && <>মোট নম্বর {toBn(s.totalMarks)}</>}
                 </div>
                 {s.gpa != null && <span className="gpa">GPA {toBn(s.gpa)}</span>}
               </div>

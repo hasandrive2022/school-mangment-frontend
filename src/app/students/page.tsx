@@ -96,11 +96,6 @@ export default async function StudentsPage() {
                 {student.totalMarks != null && (
                   <div className="desig">মোট নম্বর {toBn(student.totalMarks)}</div>
                 )}
-                {student.registrationNumber && (
-                  <div className="meta">
-                    <span>রেজি. নং: {toBn(student.registrationNumber)}</span>
-                  </div>
-                )}
               </div>
             ))}
           </div>

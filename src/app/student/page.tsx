@@ -2,14 +2,10 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
+import useSWR from "swr";
 import { useEffect, useMemo, useState } from "react";
-import { usePortalSWR } from "@/lib/swr";
 import { bnDate, bnMonthYear, toBn } from "@/lib/bn";
 import { categoryLabel } from "@/lib/categories";
-
-const api =
-  process.env.NEXT_PUBLIC_BACKEND_API_URL ??
-  "https://school-mangment-backend.vercel.app/api/v1";
 
 type Row = Record<string, unknown>;
 type ListPayload = { data?: Row[] | null; message?: string };
@@ -160,19 +156,17 @@ function Logo({ size = 38 }: { size?: number }) {
 
 /* ---------------- shared helpers ---------------- */
 function useAuthSWR<T>(token: string, path: string | null) {
-  return usePortalSWR<T>(token && path ? `${api}${path}` : null, {
-    fetcher: (url: string) =>
-      fetch(url, {
-        headers: { Authorization: `Bearer ${token}` },
-        cache: "no-store",
-      }).then(async (response) => {
-        const data = (await response
-          .json()
-          .catch(() => null)) as (T & { message?: string }) | null;
-        if (!response.ok)
-          throw new Error(data?.message ?? "তথ্য লোড করা যায়নি");
-        return data as T;
-      }),
+  return useSWR<T>(token && path ? `/api/student-portal${path}` : null, async (url: string) => {
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
+    });
+    const data = (await response.json().catch(() => null)) as (T & { message?: string }) | null;
+    if (!response.ok) throw new Error(data?.message ?? "তথ্য লোড করা যায়নি");
+    return data as T;
+  }, {
+    revalidateOnFocus: true,
+    revalidateOnReconnect: true,
   });
 }
 const list = (payload: ListPayload | undefined): Row[] =>
@@ -355,7 +349,7 @@ export default function StudentPortalPage() {
     if (!registration.trim() || loggingIn) return;
     setLoggingIn(true);
     try {
-      const response = await fetch(`${api}/auth/student-login`, {
+      const response = await fetch("/api/student-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ registrationNumber: registration.trim() }),

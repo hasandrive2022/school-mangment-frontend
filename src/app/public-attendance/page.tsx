@@ -234,7 +234,6 @@ export default async function PublicAttendancePage({
                         <b>{row.nameBn}</b>
                       </td>
                       <td>{classOf(row)}</td>
-                      <td className="num">{row.registrationNumber ? toBn(row.registrationNumber) : "—"}</td>
                       <td>
                         <span className={`mark ${s.markClass}`}>{s.mark}</span>{" "}
                         <span className={`chip ${s.chipClass}`}>{s.label}</span>
