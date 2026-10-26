@@ -3,6 +3,8 @@ import Link from "next/link";
 import PublicShell from "@/components/site-chrome";
 import {
   publicApi,
+  publicHome,
+  type HomeData,
   type PublicExamsResponse,
   type PublicResultsResponse,
 } from "@/lib/api";
@@ -48,7 +50,11 @@ async function ResultsContent({
   searchParams: Promise<{ examId?: string; classId?: string }>;
 }) {
   const params = await searchParams;
-  const examsPayload = await publicApi<PublicExamsResponse>("/public/exams");
+  const [examsPayload, homePayload] = await Promise.all([
+    publicApi<PublicExamsResponse>("/public/exams"),
+    publicHome<HomeData>(),
+  ]);
+  const school = homePayload?.data?.school ?? null;
   const exams = (examsPayload?.data ?? []).filter((e) => e.status === "published");
 
   const examId =
@@ -74,6 +80,7 @@ async function ResultsContent({
       key={`${resultsPayload?.examId ?? "none"}-${classId ?? "all"}`}
       exams={exams}
       rows={resultsPayload?.data ?? []}
+      school={school}
       examId={resultsPayload?.examId ?? examId ?? null}
       classId={classId ?? null}
     />
@@ -111,7 +118,7 @@ export default function PublicResultsPage({
           </nav>
         </div>
       </div>
-      <main className="container page-body">
+      <main className="container page-body results-page-body">
         <Suspense fallback={<ResultsLoading />}>
           <ResultsContent searchParams={searchParams} />
         </Suspense>
