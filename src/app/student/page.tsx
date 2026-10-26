@@ -1033,7 +1033,7 @@ function ResultsPanel({
             প্রিন্ট করুন
           </button>
         </div>
-        <div className="paper">
+        <div className="paper paper-marksheet">
           <div className="paper-head">
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 6 }}>
               <Logo size={64} />
@@ -1257,7 +1257,7 @@ function FeesPanel({
             প্রিন্ট করুন
           </button>
         </div>
-        <div className="paper">
+        <div className="paper paper-receipt">
           <div className="paper-head">
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 6 }}>
               <Logo size={64} />
