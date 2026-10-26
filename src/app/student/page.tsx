@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { usePortalSWR } from "@/lib/swr";
@@ -381,7 +382,28 @@ export default function StudentPortalPage() {
   if (!token)
     return (
       <div className="sport">
-        <div className="login-wrap">
+        <header className="student-login-nav">
+          <div className="student-login-nav-inner">
+            <Link
+              href="/"
+              className="student-login-brand"
+              aria-label="আদর্শ মডেল উচ্চ বিদ্যালয়ের মূল পৃষ্ঠা"
+            >
+              <Logo size={40} />
+              <span className="student-login-brand-copy">
+                <strong>আদর্শ মডেল উচ্চ বিদ্যালয়</strong>
+                <small>শিক্ষার্থী পোর্টাল</small>
+              </span>
+            </Link>
+            <nav className="student-login-links" aria-label="শিক্ষার্থী লগইন নেভিগেশন">
+              <Link href="/">হোম</Link>
+              <Link href="/result-search">ফলাফল খুঁজুন</Link>
+              <Link href="/notices">নোটিশ</Link>
+              <Link href="/student" aria-current="page">ছাত্র লগইন</Link>
+            </nav>
+          </div>
+        </header>
+        <main className="login-wrap">
           <form
             className="login-card"
             onSubmit={(event) => {
@@ -435,7 +457,7 @@ export default function StudentPortalPage() {
               অভিভাবকরাও একই নম্বর দিয়ে দেখতে পারবেন।
             </div>
           </form>
-        </div>
+        </main>
       </div>
     );
 
