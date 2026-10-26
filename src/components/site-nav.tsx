@@ -9,7 +9,12 @@ export type NavItem = { label: string; href: string };
 export function SiteNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const all: NavItem[] = [{ label: "হোম", href: "/" }, ...items.filter((i) => i.href !== "/")];
+  const menuItems = items.filter((i) => i.href !== "/" && i.href !== "/student");
+  const all: NavItem[] = [
+    { label: "হোম", href: "/" },
+    ...menuItems,
+    { label: "শিক্ষার্থী লগইন", href: "/student" },
+  ];
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(href + "/"));
 
   return (

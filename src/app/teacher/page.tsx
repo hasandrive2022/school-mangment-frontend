@@ -32,7 +32,7 @@ function Logo({ size = 38 }: { size?: number }) {
 }
 
 export default function TeacherPortalPage() {
-  const [identifier, setIdentifier] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [token, setToken] = useState("");
   const [rows, setRows] = useState<Salary[]>([]);
@@ -46,7 +46,7 @@ export default function TeacherPortalPage() {
     const response = await fetch(`${api}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ identifier, password }),
+      body: JSON.stringify({ email, password }),
     });
     const payload = (await response.json()) as {
       data?: { accessToken?: string };
@@ -86,14 +86,15 @@ export default function TeacherPortalPage() {
             <div className="login-school-en">শিক্ষক প্যানেল</div>
             <div className="login-divider">শিক্ষক পোর্টাল</div>
             <div className="login-h">শিক্ষক লগইন</div>
-            <p className="login-sub">ইউজারনেম ও পাসওয়ার্ড দিয়ে প্রবেশ করুন।</p>
+            <p className="login-sub">ইমেইল ও পাসওয়ার্ড দিয়ে প্রবেশ করুন।</p>
             <div className="field">
-              <label htmlFor="teacher-identifier">ইউজারনেম <span className="req">*</span></label>
+              <label htmlFor="teacher-email">ইমেইল <span className="req">*</span></label>
               <input
-                id="teacher-identifier"
-                placeholder="ইউজারনেম"
-                value={identifier}
-                onChange={(event) => setIdentifier(event.target.value)}
+                id="teacher-email"
+                type="email"
+                placeholder="ইমেইল"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
               />
             </div>
             <div className="field">
