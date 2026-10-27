@@ -3,6 +3,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import gsap from "gsap";
 import { toBn } from "@/lib/bn";
 import { ImagePlaceholder } from "@/components/image-placeholder";
 
@@ -14,6 +15,7 @@ export function HeroSlider({ banners }: { banners: Banner[] }) {
     : [{ imageUrl: null, titleBn: "আদর্শ মডেল উচ্চ বিদ্যালয়", captionBn: "মানসম্মত শিক্ষা বিস্তারে অঙ্গীকারবদ্ধ একটি ঐতিহ্যবাহী শিক্ষাপ্রতিষ্ঠান।" }];
   const [cur, setCur] = useState(0);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
 
   const go = useCallback((i: number) => setCur((i + slides.length) % slides.length), [slides.length]);
   const restart = useCallback(() => {
@@ -26,8 +28,43 @@ export function HeroSlider({ banners }: { banners: Banner[] }) {
     return () => { if (timer.current) clearInterval(timer.current); };
   }, [restart]);
 
+  // GSAP cinematic pass on every slide change: the active photo slowly
+  // zooms (Ken Burns) while its caption lines rise in with a stagger.
+  // Skipped entirely when the visitor prefers reduced motion.
+  useEffect(() => {
+    const root = wrapRef.current;
+    if (!root) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const active = root.querySelector(".slide.on");
+    if (!active) return;
+    const ctx = gsap.context(() => {
+      const img = active.querySelector("img");
+      if (img)
+        gsap.fromTo(
+          img,
+          { scale: 1 },
+          { scale: 1.07, duration: 5.4, ease: "none" },
+        );
+      const lines = active.querySelectorAll("figcaption h3, figcaption p");
+      if (lines.length)
+        gsap.fromTo(
+          lines,
+          { y: 26, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.7,
+            stagger: 0.12,
+            delay: 0.1,
+            ease: "power3.out",
+          },
+        );
+    }, root);
+    return () => ctx.revert();
+  }, [cur]);
+
   return (
-    <div className="slider-wrap">
+    <div className="slider-wrap" ref={wrapRef}>
       <div className="slider" onMouseEnter={() => { if (timer.current) clearInterval(timer.current); }} onMouseLeave={restart}>
         {slides.map((b, i) => (
           <figure key={i} className={i === cur ? "slide on" : "slide"} style={{ margin: 0 }}>

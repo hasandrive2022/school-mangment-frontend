@@ -4,3 +4,8 @@ packages:
 allowBuilds:
   msgpackr-extract: true
   unrs-resolver: true
+
+minimumReleaseAgeExclude:
+  - framer-motion@14.7.1
+  - motion-dom@14.7.1
+  - motion-utils@14.7.0

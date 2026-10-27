@@ -7,6 +7,8 @@ import { categoryLabel } from "@/lib/categories";
 import { getSiteUrl } from "@/lib/site-url";
 import PublicShell from "@/components/site-chrome";
 import { HeroSlider, MeritCarousel, QuoteBand, HomeResultPanel } from "@/components/home-widgets";
+import { RevealSection } from "@/components/motion/reveal";
+import { AnimatedCounter } from "@/components/motion/counter";
 import { ImagePlaceholder } from "@/components/image-placeholder";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -76,7 +78,7 @@ export default async function HomePage() {
         {enabled("banner") && <HeroSlider banners={data?.banners ?? []} />}
 
         {(enabled("notices") || enabled("news")) && (
-          <section className="block" id="notice-board">
+          <RevealSection className="block" id="notice-board">
             <div className="two-col">
               <div className="card">
                 <div style={{ padding: "20px 20px 0" }}>
@@ -131,11 +133,11 @@ export default async function HomePage() {
                 </ul>
               </div>
             </div>
-          </section>
+          </RevealSection>
         )}
 
         {enabled("messages") && (data?.messages?.length ?? 0) > 0 && (
-          <section className="block">
+          <RevealSection className="block">
             <div className="sec-head"><h2 className="sec-title">বাণী</h2></div>
             <div className="msg-grid">
               {data!.messages.map((m) => (
@@ -155,18 +157,18 @@ export default async function HomePage() {
                 </article>
               ))}
             </div>
-          </section>
+          </RevealSection>
         )}
 
-        <section className="block">
+        <RevealSection className="block">
           <div className="stats-band">
             <div className="stat">
               <div className="ic"><svg className="icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8" /></svg></div>
-              <div><b>{data?.stats?.students != null ? toBn(data.stats.students.toLocaleString("en-US")) : "—"}</b><span>মোট শিক্ষার্থী</span></div>
+              <div><b>{data?.stats?.students != null ? <AnimatedCounter value={data.stats.students} /> : "—"}</b><span>মোট শিক্ষার্থী</span></div>
             </div>
             <div className="stat">
               <div className="ic"><svg className="icon" viewBox="0 0 24 24"><path d="M22 10 12 5 2 10l10 5 10-5ZM6 12.5V16c0 1.7 2.7 3 6 3s6-1.3 6-3v-3.5M22 10v6" /></svg></div>
-              <div><b>{data?.stats?.teachers != null ? toBn(data.stats.teachers) : "—"}</b><span>মোট শিক্ষক</span></div>
+              <div><b>{data?.stats?.teachers != null ? <AnimatedCounter value={data.stats.teachers} /> : "—"}</b><span>মোট শিক্ষক</span></div>
             </div>
             <div className="stat">
               <div className="ic"><svg className="icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15ZM4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5" /></svg></div>
@@ -177,10 +179,10 @@ export default async function HomePage() {
               <div><b>{school?.foundedYear ? toBn(school.foundedYear) : "—"}</b><span>স্থাপিত</span></div>
             </div>
           </div>
-        </section>
+        </RevealSection>
 
         {enabled("services") && (data?.services?.length ?? 0) > 0 && (
-          <section className="block">
+          <RevealSection className="block">
             <div className="sec-head"><h2 className="sec-title">সেবা বক্স</h2></div>
             <div className="box-grid">
               {data!.services.map((service, i) => (
@@ -197,11 +199,11 @@ export default async function HomePage() {
                 </div>
               ))}
             </div>
-          </section>
+          </RevealSection>
         )}
 
         {enabled("events") && (data?.events?.length ?? 0) > 0 && (
-          <section className="block">
+          <RevealSection className="block">
             <div className="sec-head">
               <h2 className="sec-title">আসন্ন ইভেন্ট</h2>
               <Link className="sec-more" href="/events">সব দেখুন {ARROW}</Link>
@@ -226,23 +228,23 @@ export default async function HomePage() {
                 </div>
               ))}
             </div>
-          </section>
+          </RevealSection>
         )}
 
         {enabled("merit") && (data?.meritoriousStudents?.length ?? 0) > 0 && (
-          <section className="block">
+          <RevealSection className="block">
             <MeritCarousel students={data!.meritoriousStudents} />
-          </section>
+          </RevealSection>
         )}
 
-        <section className="block" id="result-box">
+        <RevealSection className="block" id="result-box">
           <div className="rl-grid">
             <HomeResultPanel />
           </div>
-        </section>
+        </RevealSection>
 
         {enabled("gallery") && galleries.length > 0 && (
-          <section className="block" id="gallery">
+          <RevealSection className="block" id="gallery">
             <div className="sec-head">
               <h2 className="sec-title">ফটো গ্যালারি</h2>
               <Link className="sec-more" href="/gallery">সব দেখুন {ARROW}</Link>
@@ -259,11 +261,11 @@ export default async function HomePage() {
                 </figure>
               ))}
             </div>
-          </section>
+          </RevealSection>
         )}
 
         {(enabled("downloads") || enabled("links")) && (
-          <section className="block" id="downloads">
+          <RevealSection className="block" id="downloads">
             <div className="two-col" style={{ gridTemplateColumns: "1fr 1fr" }}>
               <div className="card">
                 <div style={{ padding: "20px 20px 0" }}>
@@ -297,16 +299,16 @@ export default async function HomePage() {
                 </ul>
               </div>
             </div>
-          </section>
+          </RevealSection>
         )}
 
         {(data?.quotes?.length ?? 0) > 0 && (
-          <section className="block">
+          <RevealSection className="block">
             <QuoteBand quotes={data!.quotes} />
-          </section>
+          </RevealSection>
         )}
 
-        <section className="block">
+        <RevealSection className="block">
           <div className="sec-head"><h2 className="sec-title">ভিডিও ও ম্যাপ</h2></div>
           <div className="vm-grid">
             <Link href="/video-gallery" className="video-box">
@@ -324,7 +326,7 @@ export default async function HomePage() {
               <iframe title="কুড়িগ্রাম সদরে বিদ্যালয়ের অবস্থান — মানচিত্র" src="https://www.openstreetmap.org/export/embed.html?bbox=89.6017%2C25.7655%2C89.6817%2C25.8455&layer=mapnik&marker=25.8055%2C89.6417" loading="lazy" />
             </div>
           </div>
-        </section>
+        </RevealSection>
       </main>
     </PublicShell>
   );
