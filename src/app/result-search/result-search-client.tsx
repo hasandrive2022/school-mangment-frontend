@@ -7,6 +7,7 @@ import { toBn } from "@/lib/bn";
 type SubjectMark = {
   subjectNameBn?: string;
   nameBn?: string;
+  code?: string | null;
   fullMarks?: number;
   obtainedMarks?: number;
   marks?: number;
@@ -15,7 +16,58 @@ type SubjectMark = {
   gradePoint?: number | string;
   gpa?: number | string;
   subjectNameEn?: string | null;
+  cq?: number | null;
+  mcq?: number | null;
+  practical?: number | null;
+  cqMarks?: number | null;
+  mcqMarks?: number | null;
+  practicalMarks?: number | null;
+  isAbsent?: boolean;
 };
+
+const BOARD_ORDER = ["101", "102", "107", "108", "109", "150", "111", "136", "137", "138", "126", "141", "110", "142", "140", "146", "147", "152", "154"];
+const COMBINED_PAIRS: Record<string, string> = { "101": "102", "107": "108" };
+
+function boardLetter(percent: number): string {
+  if (percent >= 80) return "A+";
+  if (percent >= 70) return "A";
+  if (percent >= 60) return "A-";
+  if (percent >= 50) return "B";
+  if (percent >= 40) return "C";
+  if (percent >= 33) return "D";
+  return "F";
+}
+
+type BoardRow = { subject: SubjectMark; total?: number; letter?: string; rowSpan?: number };
+
+function buildBoardRows(subjects: SubjectMark[]): BoardRow[] {
+  const sorted = subjects
+    .map((subject, index) => ({ subject, index }))
+    .sort((a, b) => {
+      const ai = a.subject.code ? BOARD_ORDER.indexOf(a.subject.code) : -1;
+      const bi = b.subject.code ? BOARD_ORDER.indexOf(b.subject.code) : -1;
+      return (ai < 0 ? 999 : ai) - (bi < 0 ? 999 : bi) || a.index - b.index;
+    })
+    .map(({ subject }) => subject);
+  const rows: BoardRow[] = [];
+  for (let index = 0; index < sorted.length; index += 1) {
+    const subject = sorted[index];
+    const partnerCode = subject.code ? COMBINED_PAIRS[subject.code] : undefined;
+    const next = sorted[index + 1];
+    const total = subject.obtainedMarks ?? subject.marks ?? 0;
+    if (partnerCode && next?.code === partnerCode) {
+      const nextTotal = next.obtainedMarks ?? next.marks ?? 0;
+      const full = (subject.fullMarks ?? 0) + (next.fullMarks ?? 0);
+      const combined = total + nextTotal;
+      rows.push({ subject, total: combined, rowSpan: 2, letter: full ? boardLetter((combined / full) * 100) : subject.letter ?? subject.grade });
+      rows.push({ subject: next });
+      index += 1;
+    } else {
+      rows.push({ subject, total, rowSpan: 1, letter: subject.letter ?? subject.grade });
+    }
+  }
+  return rows;
+}
 
 type ResultData = {
   totalMarks: number;
@@ -142,6 +194,8 @@ export function ResultSearchClient({
   const result = payload?.result;
   const subjects = payload?.subjects ?? payload?.result?.subjects;
   const studentName = payload?.student?.nameBn;
+  const boardMode = Boolean(subjects?.some((subject) => subject.code || subject.cq !== undefined || subject.mcq !== undefined || subject.practical !== undefined));
+  const boardRows = boardMode && subjects ? buildBoardRows(subjects) : [];
 
   return (
     <>
@@ -235,7 +289,24 @@ export function ResultSearchClient({
             </div>
             <div className="tbl-wrap" style={{ border: 0, boxShadow: "none" }}>
               <table className="ms">
-                {subjects && subjects.length > 0 ? (
+                {boardMode ? (
+                  <>
+                    <thead>
+                      <tr><th className="n" rowSpan={2}>বিষয় কোড</th><th rowSpan={2}>বিষয়ের নাম</th><th className="n" colSpan={4}>প্রাপ্ত নম্বর</th><th className="n" rowSpan={2}>গ্রেড</th></tr>
+                      <tr><th className="n">তত্ত্বীয়</th><th className="n">ব্যবহারিক</th><th className="n">MCQ</th><th className="n">মোট</th></tr>
+                    </thead>
+                    <tbody>
+                      {boardRows.map((row, index) => {
+                        const subject = row.subject;
+                        const theory = subject.isAbsent ? "অনুপস্থিত" : subject.cq !== null && subject.cq !== undefined ? toBn(subject.cq) : "—";
+                        const practical = subject.practicalMarks ? subject.practical !== null && subject.practical !== undefined ? toBn(subject.practical) : "—" : "—";
+                        const mcq = subject.mcqMarks ? subject.mcq !== null && subject.mcq !== undefined ? toBn(subject.mcq) : "—" : "—";
+                        return <tr key={index}><td className="n">{subject.code ? toBn(subject.code) : "—"}</td><td>{subject.subjectNameBn ?? subject.nameBn ?? "বিষয়"}</td><td className="n">{theory}</td><td className="n">{practical}</td><td className="n">{mcq}</td>{row.total !== undefined && <td className="n" rowSpan={row.rowSpan}><b>{toBn(row.total)}</b></td>}{row.total !== undefined && <td className="n" rowSpan={row.rowSpan}><b>{row.letter ?? "—"}</b></td>}</tr>;
+                      })}
+                      <tr style={{ background: "var(--p50)" }}><td colSpan={5}><b>সর্বমোট</b></td><td className="n"><b>{toBn(result.totalMarks)}</b></td><td className="n"><b>{result.letter}</b></td></tr>
+                    </tbody>
+                  </>
+                ) : subjects && subjects.length > 0 ? (
                   <>
                     <thead>
                       <tr>
