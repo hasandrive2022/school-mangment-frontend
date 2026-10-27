@@ -716,7 +716,8 @@ body {
 .dsite .stat .ic{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:#fff;flex:none}
 .dsite .stat .ic .icon{width:26px;height:26px}
 .dsite .stat b{display:block;font-size:28px;line-height:1.2;font-weight:700}
-.dsite .stat span{font-size:14px;color:#DCEBF7}
+.dsite .stat b > span{font-size:inherit;line-height:inherit;color:inherit}
+.dsite .stat > div > span{font-size:14px;color:#DCEBF7}
 .dsite .box-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
 .dsite .svc{padding:20px}
 .dsite .svc-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
