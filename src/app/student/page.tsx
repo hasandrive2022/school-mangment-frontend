@@ -3,7 +3,9 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import useSWR from "swr";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import gsap from "gsap";
 import { bnDate, bnMonthYear, toBn } from "@/lib/bn";
 import { categoryLabel } from "@/lib/categories";
 
@@ -297,6 +299,31 @@ export default function StudentPortalPage() {
   const [tab, setTab] = useState<TabId>("dashboard");
   const [error, setError] = useState("");
   const [loggingIn, setLoggingIn] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
+  const featureListRef = useRef<HTMLUListElement>(null);
+
+  useLayoutEffect(() => {
+    const featureList = featureListRef.current;
+    if (!featureList || token || prefersReducedMotion) return;
+
+    const context = gsap.context(() => {
+      gsap.fromTo(
+        ".student-login-feature",
+        { autoAlpha: 0, y: 14 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.45,
+          stagger: 0.1,
+          delay: 0.2,
+          ease: "power2.out",
+          clearProps: "opacity,transform,visibility",
+        },
+      );
+    }, featureList);
+
+    return () => context.revert();
+  }, [prefersReducedMotion, token]);
 
   // Keep the full SWR responses (Round 6, P1): `error`/`isLoading` drive
   // the per-screen loading + error + retry states below; data alone
@@ -399,9 +426,16 @@ export default function StudentPortalPage() {
         </header>
         <main className="login-wrap student-login-main">
           <div className="student-login-layout">
-            <section
+            <motion.section
               className="student-login-intro"
               aria-labelledby="student-login-welcome"
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={
+                prefersReducedMotion
+                  ? { duration: 0 }
+                  : { duration: 0.55, ease: [0.22, 0.61, 0.36, 1] }
+              }
             >
               <p className="student-login-kicker">
                 <span aria-hidden="true" />
@@ -415,7 +449,7 @@ export default function StudentPortalPage() {
                 রেজিস্ট্রেশন নম্বর দিয়ে প্রবেশ করে ফলাফল, ফি, হাজিরা ও প্রোফাইল
                 একসাথে দেখো।
               </p>
-              <ul className="student-login-features">
+              <ul className="student-login-features" ref={featureListRef}>
                 <li className="student-login-feature">
                   <span className="student-login-feature-icon" aria-hidden="true">
                     <Icon d={ICONS.results} size={20} />
@@ -444,10 +478,21 @@ export default function StudentPortalPage() {
                   </span>
                 </li>
               </ul>
-            </section>
-            <form
+            </motion.section>
+            <motion.form
               className="login-card"
               aria-labelledby="student-login-title"
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 22 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={
+                prefersReducedMotion
+                  ? { duration: 0 }
+                  : {
+                      duration: 0.58,
+                      delay: 0.1,
+                      ease: [0.22, 0.61, 0.36, 1],
+                    }
+              }
               onSubmit={(event) => {
                 event.preventDefault();
                 void login();
@@ -497,7 +542,7 @@ export default function StudentPortalPage() {
                 রেজিস্ট্রেশন নম্বর ভুলে গেলে স্কুল অফিসে যোগাযোগ করো।
                 অভিভাবকরাও একই নম্বর দিয়ে দেখতে পারবেন।
               </div>
-            </form>
+            </motion.form>
           </div>
         </main>
       </div>
@@ -702,7 +747,7 @@ export default function StudentPortalPage() {
                 </p>
                 {(routineQ.error && !routinePayload) || (noticesQ.error && !noticesPayload) ? (
                   <PanelError
-                    message="রুটিন ও নোটিশ লোড করা যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।"
+                    message="রুটিন ও নোটিশ লোড করা যায়নি। ইন্টারনেট সংযোগ পরীক্ষা ক��ে আবার চেষ্টা করুন।"
                     onRetry={() => {
                       void routineQ.mutate();
                       void noticesQ.mutate();
@@ -1872,7 +1917,7 @@ function ProfilePanel({
     {
       title: "পূর্ববর্তী শিক্ষা",
       rows: [
-        ["পূর্ববর্তী বিদ্যালয়", s(student.previousInstitution, "")],
+        ["পূর্ববর্ত�� বিদ্যালয়", s(student.previousInstitution, "")],
       ].filter(([, v]) => v !== "") as Array<[string, string]>,
     },
   ].filter((section) => section.rows.length > 0);

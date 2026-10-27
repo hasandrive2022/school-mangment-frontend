@@ -1,8 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { motion, useReducedMotion } from "framer-motion";
+import gsap from "gsap";
 import { UserRound } from "lucide-react";
 import type { HomeData, PublicExam, PublicResultRow } from "@/lib/api";
 import { toBn } from "@/lib/bn";
@@ -50,6 +52,8 @@ export function ResultsClient({
   const [selExam, setSelExam] = useState<string>(examId ?? exams[0]?.id ?? "");
   const [selClass, setSelClass] = useState<string>(classId ?? "all");
   const [printDate, setPrintDate] = useState("");
+  const prefersReducedMotion = useReducedMotion();
+  const tableWrapRef = useRef<HTMLDivElement>(null);
 
   // Class options are scoped to the SELECTED exam (each exam belongs to
   // one class) so the class filter can never contradict the exam filter.
@@ -85,6 +89,39 @@ export function ResultsClient({
       passed: derivedPassed(row),
     }));
   }, [rows]);
+
+  useLayoutEffect(() => {
+    const tableWrap = tableWrapRef.current;
+    if (!tableWrap || prefersReducedMotion) return;
+
+    const rowsToAnimate = Array.from(
+      tableWrap.querySelectorAll<HTMLTableRowElement>("tbody tr"),
+    ).slice(0, 12);
+    if (rowsToAnimate.length === 0) return;
+
+    const context = gsap.context(() => {
+      gsap.fromTo(
+        rowsToAnimate,
+        { autoAlpha: 0, y: 10 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.38,
+          stagger: 0.035,
+          ease: "power2.out",
+          clearProps: "opacity,transform,visibility",
+        },
+      );
+    }, tableWrap);
+
+    const restoreRowsBeforePrint = () => context.revert();
+    window.addEventListener("beforeprint", restoreRowsBeforePrint);
+
+    return () => {
+      window.removeEventListener("beforeprint", restoreRowsBeforePrint);
+      context.revert();
+    };
+  }, [prefersReducedMotion, rankedRows]);
 
   const summary = useMemo(() => {
     const total = rows.length;
@@ -161,7 +198,16 @@ export function ResultsClient({
         </dl>
         <p className="results-print-date">মুদ্রণের তারিখ: {printDate || "—"}</p>
       </header>
-      <div className="card filter-card results-filter-card">
+      <motion.div
+        className="card filter-card results-filter-card"
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={
+          prefersReducedMotion
+            ? { duration: 0 }
+            : { duration: 0.45, delay: 0.06, ease: [0.22, 0.61, 0.36, 1] }
+        }
+      >
         <form
           className="filter-grid f3"
           onSubmit={(e) => {
@@ -208,7 +254,7 @@ export function ResultsClient({
             ফলাফল দেখুন
           </button>
         </form>
-      </div>
+      </motion.div>
 
       {rows.length > 0 ? (
         <>
@@ -242,7 +288,7 @@ export function ResultsClient({
             </div>
           </div>
 
-          <div className="tbl-wrap results-table-wrap">
+          <div className="tbl-wrap results-table-wrap" ref={tableWrapRef}>
             <table className="data ct results-print-table">
               <thead>
                 <tr>
