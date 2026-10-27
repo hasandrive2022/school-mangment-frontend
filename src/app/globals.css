@@ -816,6 +816,9 @@ body {
 .dsite .video-cap .dur{background:rgba(0,0,0,.55);font-size:12.5px;padding:2px 9px;border-radius:4px}
 .dsite .map-box{border-radius:var(--r-card);overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);aspect-ratio:16/9.4;background:var(--p100)}
 .dsite .map-box iframe{width:100%;height:100%;border:0;display:block}
+.dsite .grid-2 > *, .dsite .vm-grid > *{min-width:0}
+.dsite .grid-2 > .map-box{aspect-ratio:auto}
+.dsite .vm-grid > .map-box{min-height:0}
 .dsite footer{background:var(--p900);color:#C9DCEC;margin-top:48px}
 .dsite .foot-grid{display:grid;grid-template-columns:1.25fr 1fr 1fr 1.15fr;gap:32px;padding:44px 0 32px}
 .dsite footer h4{color:#fff;font-size:16.5px;font-weight:600;margin:0 0 16px;padding-bottom:10px;border-bottom:2px solid var(--p700)}
