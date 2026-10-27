@@ -397,60 +397,108 @@ export default function StudentPortalPage() {
             </nav>
           </div>
         </header>
-        <main className="login-wrap">
-          <form
-            className="login-card"
-            onSubmit={(event) => {
-              event.preventDefault();
-              void login();
-            }}
-          >
-            <div className="login-logo"><Logo size={84} /></div>
-            <div className="login-school">আদর্শ মডেল উচ্চ বিদ্যালয়</div>
-            <div className="login-school-en">
-              ADARSH MODEL HIGH SCHOOL · EIIN: 123456
-            </div>
-            <div className="login-divider">ছাত্র পোর্টাল</div>
-            <div className="login-h">ছাত্র লগইন</div>
-            <p className="login-sub">
-              স্বাগতম! তোমার ফলাফল, ফি, হাজিরা ও প্রোফাইল দেখতে রেজিস্ট্রেশন
-              নম্বর দিয়ে প্রবেশ করো।
-            </p>
-            <div className="field">
-              <label htmlFor="student-reg">
-                রেজিস্ট্রেশন নম্বর <span className="req">*</span>
-              </label>
-              <input
-                id="student-reg"
-                value={registration}
-                onChange={(event) => setRegistration(event.target.value)}
-                placeholder="রেজিস্ট্রেশন নম্বর"
-                inputMode="numeric"
-                autoComplete="off"
-              />
-              <div className="hint">
-                রেজিস্ট্রেশন নম্বরটি স্কুল থেকে দেওয়া হয়েছে — ভর্তির রশিদে
-                পাবে।
-              </div>
-            </div>
-            <button
-              className="btn btn-primary btn-lg"
-              type="submit"
-              style={{ width: "100%", justifyContent: "center" }}
-              disabled={loggingIn}
+        <main className="login-wrap student-login-main">
+          <div className="student-login-layout">
+            <section
+              className="student-login-intro"
+              aria-labelledby="student-login-welcome"
             >
-              প্রবেশ করুন
-            </button>
-            {error && <p className="portal-error">{error}</p>}
-            <div className="login-note">
-              <Icon d={ICONS.shield} size={20} />
-              পাসওয়ার্ড লাগবে না — শুধু রেজিস্ট্রেশন নম্বর দিন
-            </div>
-            <div className="login-foot">
-              রেজিস্ট্রেশন নম্বর ভুলে গেলে স্কুল অফিসে যোগাযোগ করো।
-              অভিভাবকরাও একই নম্বর দিয়ে দেখতে পারবেন।
-            </div>
-          </form>
+              <p className="student-login-kicker">
+                <span aria-hidden="true" />
+                শিক্ষার্থীর ডিজিটাল পোর্টাল
+              </p>
+              <h1 id="student-login-welcome">
+                তোমার শিক্ষাজীবনের সব তথ্য
+                <span>এক জায়গায়</span>
+              </h1>
+              <p className="student-login-lede">
+                রেজিস্ট্রেশন নম্বর দিয়ে প্রবেশ করে ফলাফল, ফি, হাজিরা ও প্রোফাইল
+                একসাথে দেখো।
+              </p>
+              <ul className="student-login-features">
+                <li className="student-login-feature">
+                  <span className="student-login-feature-icon" aria-hidden="true">
+                    <Icon d={ICONS.results} size={20} />
+                  </span>
+                  <span className="student-login-feature-copy">
+                    <strong>ফলাফল ও অগ্রগতি</strong>
+                    <small>পরীক্ষার নম্বর ও গ্রেড</small>
+                  </span>
+                </li>
+                <li className="student-login-feature">
+                  <span className="student-login-feature-icon" aria-hidden="true">
+                    <Icon d={ICONS.fees} size={20} />
+                  </span>
+                  <span className="student-login-feature-copy">
+                    <strong>ফি ও রশিদ</strong>
+                    <small>ফি পরিশোধের অবস্থা ও রশিদ</small>
+                  </span>
+                </li>
+                <li className="student-login-feature">
+                  <span className="student-login-feature-icon" aria-hidden="true">
+                    <Icon d={ICONS.attendance} size={20} />
+                  </span>
+                  <span className="student-login-feature-copy">
+                    <strong>হাজিরা ও রুটিন</strong>
+                    <small>দৈনিক হাজিরা ও ক্লাস পরিকল্পনা</small>
+                  </span>
+                </li>
+              </ul>
+            </section>
+            <form
+              className="login-card"
+              aria-labelledby="student-login-title"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void login();
+              }}
+            >
+              <p className="login-card-overline">
+                <span aria-hidden="true" />
+                ব্যক্তিগত শিক্ষার্থী অ্যাকাউন্ট
+              </p>
+              <h2 id="student-login-title" className="login-h">
+                ছাত্র লগইন
+              </h2>
+              <p className="login-sub">
+                রেজিস্ট্রেশন নম্বর দিয়ে তোমার অ্যাকাউন্টে প্রবেশ করো।
+              </p>
+              <div className="field">
+                <label htmlFor="student-reg">
+                  রেজিস্ট্রেশন নম্বর <span className="req">*</span>
+                </label>
+                <input
+                  id="student-reg"
+                  value={registration}
+                  onChange={(event) => setRegistration(event.target.value)}
+                  placeholder="রেজিস্ট্রেশন নম্বর"
+                  inputMode="numeric"
+                  autoComplete="off"
+                />
+                <div className="hint">
+                  রেজিস্ট্রেশন নম্বরটি স্কুল থেকে দেওয়া হয়েছে — ভর্তির রশিদে
+                  পাবে।
+                </div>
+              </div>
+              <button
+                className="btn btn-primary btn-lg"
+                type="submit"
+                style={{ width: "100%", justifyContent: "center" }}
+                disabled={loggingIn}
+              >
+                প্রবেশ করুন
+              </button>
+              {error && <p className="portal-error">{error}</p>}
+              <div className="login-note">
+                <Icon d={ICONS.shield} size={20} />
+                পাসওয়ার্ড লাগবে না — শুধু রেজিস্ট্রেশন নম্বর দিন
+              </div>
+              <div className="login-foot">
+                রেজিস্ট্রেশন নম্বর ভুলে গেলে স্কুল অফিসে যোগাযোগ করো।
+                অভিভাবকরাও একই নম্বর দিয়ে দেখতে পারবেন।
+              </div>
+            </form>
+          </div>
         </main>
       </div>
     );
@@ -1880,7 +1928,7 @@ function ProfilePanel({
       ))}
       <EmptyNote>
         তথ্য বদলাতে স্কুল অফিসে যোগাযোগ করুন। প্রোফাইলের কোনো তথ্য ভুল
-        থাকলে বা পরিবর্তন প্রয়োজন হলে প্রয়োজনীয় কাগজপত্রসহ স্কুল অফিসে
+        থাকলে বা পরিবর্তন প্রয়োজন হলে প্রয়��জনীয় কাগজপত্রসহ স্কুল অফিসে
         আবেদন করুন — পোর্টাল থেকে সরাসরি তথ্য বদলানো যায় না।
       </EmptyNote>
     </>

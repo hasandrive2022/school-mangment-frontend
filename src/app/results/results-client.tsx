@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { UserRound } from "lucide-react";
 import type { HomeData, PublicExam, PublicResultRow } from "@/lib/api";
 import { toBn } from "@/lib/bn";
 
@@ -262,7 +263,9 @@ export function ResultsClient({
                     </td>
                     <td className="cell-main" data-label="শিক্ষার্থী">
                       <div className="cell-person">
-                        <span className="avatar av-txt">{row.nameBn?.charAt(0) ?? "শি"}</span>
+                        <span className="avatar av-icon" aria-hidden="true">
+                          <UserRound size={18} strokeWidth={1.8} />
+                        </span>
                         <b>{row.nameBn}</b>
                       </div>
                     </td>
