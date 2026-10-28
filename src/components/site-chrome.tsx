@@ -164,7 +164,7 @@ export function SiteFooter({ school, links }: { school?: School; links?: Home["l
  * around every public page. Data comes from the home payload.
  */
 async function PublicShellContent({ children }: { children: ReactNode }) {
-  const payload = await publicHome<HomeData>();
+  const payload = await publicHome<HomeData>({ revalidate: 3600 });
   const data = payload?.data;
   const blocks = data?.blocks ?? [];
   const blockEnabled = (key: string) => {
