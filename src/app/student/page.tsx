@@ -8,6 +8,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import gsap from "gsap";
 import { bnDate, bnMonthYear, toBn } from "@/lib/bn";
 import { categoryLabel } from "@/lib/categories";
+import { RoomGraphic } from "@/components/seat-plans/room-graphic";
 
 type Row = Record<string, unknown>;
 type ListPayload = { data?: Row[] | null; message?: string };
@@ -29,6 +30,7 @@ const tabs = [
   { id: "fees", label: "আমার ফি ও রশিদ", short: "ফি ও রশিদ" },
   { id: "attendance", label: "আমার হাজিরা", short: "হাজিরা" },
   { id: "routine", label: "রুটিন ও নোটিশ", short: "নোটিশ" },
+  { id: "seats", label: "আমার আসন", short: "আসন" },
   { id: "profile", label: "আমার প্রোফাইল", short: "প্রোফাইল" },
 ] as const;
 type TabId = (typeof tabs)[number]["id"];
@@ -136,6 +138,7 @@ const ICONS: Record<string, ReactNode> = {
   attendance: <><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18M9 16l2 2 4-4" /></>,
   routine: <><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></>,
   profile: <><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></>,
+  seats: <><rect x="4" y="5" width="16" height="14" rx="2" /><path d="M8 9h8M8 13h8M8 17h3" /></>,
   out: <><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="m16 17 5-5-5-5M21 12H9" /></>,
   shield: <><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /><path d="m9 12 2 2 4-4" /></>,
   print: <><path d="M6 9V2h12v7" /><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" /><rect x="6" y="14" width="12" height="8" /></>,
@@ -336,6 +339,7 @@ export default function StudentPortalPage() {
   const routineQ = useAuthSWR<ListPayload>(token, "/student/portal/routine");
   const noticesQ = useAuthSWR<ListPayload>(token, "/student/portal/notices");
   const upcomingQ = useAuthSWR<ListPayload>(token, "/student/portal/upcoming-results");
+  const seatsQ = useAuthSWR<ListPayload>(token, "/student/seat-plans");
   const profilePayload = profileQ.data;
   const duesPayload = duesQ.data;
   const paymentsPayload = paymentsQ.data;
@@ -344,6 +348,7 @@ export default function StudentPortalPage() {
   const routinePayload = routineQ.data;
   const noticesPayload = noticesQ.data;
   const upcomingPayload = upcomingQ.data;
+  const seatsPayload = seatsQ.data;
   const retryAll = () => {
     void profileQ.mutate();
     void duesQ.mutate();
@@ -353,6 +358,7 @@ export default function StudentPortalPage() {
     void routineQ.mutate();
     void noticesQ.mutate();
     void upcomingQ.mutate();
+    void seatsQ.mutate();
   };
 
   const profile = profilePayload?.data ?? null;
@@ -365,6 +371,7 @@ export default function StudentPortalPage() {
   const routineRows = list(routinePayload);
   const notices = list(noticesPayload);
   const upcoming = list(upcomingPayload);
+  const seats = list(seatsPayload);
 
   const name = s(user.displayNameBn, "শিক্ষার্থী");
   const regNo = s(user.registrationNumber, registration);
@@ -764,6 +771,13 @@ export default function StudentPortalPage() {
                 )}
               </>
             )}
+            {tab === "seats" && (
+              <>
+                <h2 className="page-h">আমার আসন</h2>
+                <p className="page-sub">প্রকাশিত পরীক্ষার সিট প্ল্যানে তোমার রুম ও আসন নম্বর।</p>
+                {seatsQ.error && !seatsPayload ? <PanelError message="আসন পরিকল্পনার তথ্য লোড করা যায়নি।" onRetry={() => void seatsQ.mutate()} /> : seatsPayload === undefined ? <PanelLoading label="আসন পরিকল্পনা লোড হচ্ছে…" /> : <SeatPlansPanel rows={seats} />}
+              </>
+            )}
             {tab === "profile" && (
               <>
                 <h2 className="page-h">আমার প্রোফাইল</h2>
@@ -1117,7 +1131,7 @@ function ResultsPanel({
     const classSectionRoll = [
       has(profile?.classNameBn) ? String(profile.classNameBn) : null,
       has(profile?.sectionNameBn) ? String(profile.sectionNameBn) : null,
-      has(student.roll) ? toBn(student.roll as string) : null,
+      has(student.roll) ? toBn(student.roll as string) : "—",
     ]
       .filter(Boolean)
       .join(" / ");
@@ -1341,7 +1355,7 @@ function FeesPanel({
     const classSectionRoll = [
       has(profile?.classNameBn) ? String(profile.classNameBn) : null,
       has(profile?.sectionNameBn) ? String(profile.sectionNameBn) : null,
-      has(student.roll) ? toBn(student.roll as string) : null,
+      has(student.roll) ? toBn(student.roll as string) : "—",
     ]
       .filter(Boolean)
       .join(" / ");
@@ -1756,6 +1770,11 @@ function AttendancePanel({
 }
 
 /* ---------------- routine + notices ---------------- */
+function SeatPlansPanel({ rows }: { rows: Row[] }) {
+  if (!rows.length) return <EmptyNote>এখনও কোনো প্রকাশিত সিট প্ল্যান নেই।</EmptyNote>;
+  return <div className="tbl-wrap"><table className="tbl resp"><thead><tr><th>পরীক্ষা</th><th>বিষয়</th><th>রোল</th><th>তারিখ</th><th>শিফট</th><th>রুম</th><th>সিট</th><th>অবস্থান</th></tr></thead><tbody>{rows.map((row, index) => <tr key={String(row.id ?? index)}><td data-l="পরীক্ষা"><b>{s(row.examNameBn, "পরীক্ষা")}</b></td><td data-l="বিষয়">{s(row.subjectNameBn)}</td><td data-l="রোল">{has(row.roll) ? toBn(Number(row.roll)) : "—"}</td><td data-l="তারিখ">{has(row.sittingDate) ? bnDate(String(row.sittingDate)) : "—"}</td><td data-l="শিফট">{s(row.shift)}</td><td data-l="রুম">{s(row.roomName)}{has(row.building) ? ` (${String(row.building)})` : ""}</td><td data-l="সিট"><b>{toBn(Number(row.seatNo ?? 0))}</b></td><td data-l="অবস্থান">{has(row.benchRow) ? `${ordinalBn(Number(row.benchRow))} সারি · ${toBn(Number(row.benchColumn))} নম্বর বেঞ্চ` : "—"}<RoomGraphic layout={Array.isArray(row.layout) ? row.layout as { benches: number }[] : []} highlightedRow={Number(row.benchRow)} highlightedColumn={Number(row.benchColumn)} /></td></tr>)}</tbody></table></div>;
+}
+
 function RoutinePanel({
   rows,
   notices,
@@ -1944,9 +1963,7 @@ function ProfilePanel({
             {has(profile.sectionNameBn) && (
               <span className="chip chip-cat">শাখা: {String(profile.sectionNameBn)}</span>
             )}
-            {has(student.roll) && (
-              <span className="chip chip-cat">রোল: {toBn(student.roll as string)}</span>
-            )}
+            <span className="chip chip-cat">রোল: {has(student.roll) ? toBn(student.roll as string) : "—"}</span>
             {has(profile.sectionGroupName) && (
               <span className="chip chip-cat">গ্রুপ: {String(profile.sectionGroupName)}</span>
             )}

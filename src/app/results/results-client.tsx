@@ -294,6 +294,7 @@ export function ResultsClient({
                 <tr>
                   <th>মেধাক্রম</th>
                   <th>শিক্ষার্থী</th>
+                  <th>রোল</th>
                   <th>মোট নম্বর</th>
                   <th>GPA</th>
                   <th>গ্রেড</th>
@@ -315,6 +316,7 @@ export function ResultsClient({
                         <b>{row.nameBn}</b>
                       </div>
                     </td>
+                    <td data-label="রোল" className="num">{row.roll != null ? toBn(row.roll) : "—"}</td>
                     <td data-label="মোট নম্বর" className="num">{toBn(row.totalMarks)}</td>
                     <td data-label="GPA">
                       <b style={{ color: "var(--a600)" }}>{toBn(row.gpa)}</b>

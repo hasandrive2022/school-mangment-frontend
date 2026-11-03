@@ -127,6 +127,7 @@ export type PublicExamsResponse = { data: PublicExam[] };
 /** GET /public/results */
 export type PublicResultRow = {
   registrationNumber: string | null;
+  roll: number | null;
   nameBn: string;
   classId: string | null;
   totalMarks: number;

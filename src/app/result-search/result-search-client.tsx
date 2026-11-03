@@ -279,9 +279,7 @@ export function ResultSearchClient({
               {payload?.student?.sectionNameBn && (
                 <div><span>শাখা</span><b>{payload.student.sectionNameBn}</b></div>
               )}
-              {payload?.student?.roll !== null && payload?.student?.roll !== undefined && (
-                <div><span>রোল</span><b>{toBn(payload.student.roll)}</b></div>
-              )}
+              <div><span>রোল</span><b>{payload?.student?.roll !== null && payload?.student?.roll !== undefined ? toBn(payload.student.roll) : "—"}</b></div>
               {payload?.exam?.nameBn && (
                 <div><span>পরীক্ষা</span><b>{payload.exam.nameBn}</b></div>
               )}

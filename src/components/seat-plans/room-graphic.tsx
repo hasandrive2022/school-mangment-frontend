@@ -1,0 +1,2 @@
+"use client";
+export function RoomGraphic({ layout, highlightedRow, highlightedColumn }: { layout: { benches: number }[]; highlightedRow?: number; highlightedColumn?: number }) { return <div className="student-seat-map"><div className="student-seat-board">বোর্ড / শিক্ষকের দিক</div>{layout.map((row, i) => <div className="student-seat-row" key={i}>{Array.from({ length: row.benches }, (_, j) => <span className={highlightedRow === i + 1 && highlightedColumn === j + 1 ? "student-seat-bench active" : "student-seat-bench"} key={j}>বেঞ্চ {j + 1}</span>)}</div>)}</div>; }
