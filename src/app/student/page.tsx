@@ -30,7 +30,6 @@ const tabs = [
   { id: "fees", label: "আমার ফি ও রশিদ", short: "ফি ও রশিদ" },
   { id: "attendance", label: "আমার হাজিরা", short: "হাজিরা" },
   { id: "routine", label: "রুটিন ও নোটিশ", short: "নোটিশ" },
-  { id: "seats", label: "আমার আসন", short: "আসন" },
   { id: "profile", label: "আমার প্রোফাইল", short: "প্রোফাইল" },
 ] as const;
 type TabId = (typeof tabs)[number]["id"];
@@ -339,7 +338,6 @@ export default function StudentPortalPage() {
   const routineQ = useAuthSWR<ListPayload>(token, "/student/portal/routine");
   const noticesQ = useAuthSWR<ListPayload>(token, "/student/portal/notices");
   const upcomingQ = useAuthSWR<ListPayload>(token, "/student/portal/upcoming-results");
-  const seatsQ = useAuthSWR<ListPayload>(token, "/student/seat-plans");
   const profilePayload = profileQ.data;
   const duesPayload = duesQ.data;
   const paymentsPayload = paymentsQ.data;
@@ -348,7 +346,6 @@ export default function StudentPortalPage() {
   const routinePayload = routineQ.data;
   const noticesPayload = noticesQ.data;
   const upcomingPayload = upcomingQ.data;
-  const seatsPayload = seatsQ.data;
   const retryAll = () => {
     void profileQ.mutate();
     void duesQ.mutate();
@@ -358,7 +355,6 @@ export default function StudentPortalPage() {
     void routineQ.mutate();
     void noticesQ.mutate();
     void upcomingQ.mutate();
-    void seatsQ.mutate();
   };
 
   const profile = profilePayload?.data ?? null;
@@ -371,7 +367,6 @@ export default function StudentPortalPage() {
   const routineRows = list(routinePayload);
   const notices = list(noticesPayload);
   const upcoming = list(upcomingPayload);
-  const seats = list(seatsPayload);
 
   const name = s(user.displayNameBn, "শিক্ষার্থী");
   const regNo = s(user.registrationNumber, registration);
@@ -769,13 +764,6 @@ export default function StudentPortalPage() {
                     message={routinePayload?.message}
                   />
                 )}
-              </>
-            )}
-            {tab === "seats" && (
-              <>
-                <h2 className="page-h">আমার আসন</h2>
-                <p className="page-sub">প্রকাশিত পরীক্ষার সিট প্ল্যানে তোমার রুম ও আসন নম্বর।</p>
-                {seatsQ.error && !seatsPayload ? <PanelError message="আসন পরিকল্পনার তথ্য লোড করা যায়নি।" onRetry={() => void seatsQ.mutate()} /> : seatsPayload === undefined ? <PanelLoading label="আসন পরিকল্পনা লোড হচ্ছে…" /> : <SeatPlansPanel rows={seats} />}
               </>
             )}
             {tab === "profile" && (
