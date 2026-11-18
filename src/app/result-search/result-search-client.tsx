@@ -97,7 +97,7 @@ type SearchStatus = "found" | "not-found" | "not-published" | "error";
 type NormalizedResult = {
   status: SearchStatus;
   result?: ResultData;
-  exam?: { nameBn: string };
+  exam?: { nameBn: string; headteacherSignatureUrl?: string | null; preparedBySignatureUrl?: string | null; preparedByTeacherNameBn?: string | null };
   student?: {
     nameBn?: string;
     nameEn?: string | null;
@@ -192,6 +192,7 @@ export function ResultSearchClient({
   }, [initialReg]);
 
   const result = payload?.result;
+  const exam = payload?.exam;
   const subjects = payload?.subjects ?? payload?.result?.subjects;
   const studentName = payload?.student?.nameBn;
   const boardMode = Boolean(subjects?.some((subject) => subject.code || subject.cq !== undefined || subject.mcq !== undefined || subject.practical !== undefined));
@@ -372,9 +373,9 @@ export function ResultSearchClient({
               </div>
             </div>
             <div className="ms-sign">
-              <div><i></i>শ্রেণি শিক্ষকের স্বাক্ষর</div>
+              <div>{exam?.preparedBySignatureUrl && <img src={exam.preparedBySignatureUrl} alt="প্রস্তুতকারী শিক্ষকের স্বাক্ষর" />}<i></i>{exam?.preparedByTeacherNameBn || "প্রস্তুতকারী শিক্ষক"}</div>
               <div><i></i>পরীক্ষা নিয়ন্ত্রক</div>
-              <div><i></i>প্রধান শিক্ষকের স্বাক্ষর ও সিল</div>
+              <div>{exam?.headteacherSignatureUrl && <img src={exam.headteacherSignatureUrl} alt="প্রধান শিক্ষকের স্বাক্ষর" />}<i></i>প্রধান শিক্ষকের স্বাক্ষর ও সিল</div>
             </div>
           </div>
         </div>

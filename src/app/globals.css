@@ -1613,6 +1613,7 @@ body {
 .marksheet-paper {
   background: #fffefb;
 }
+.paper-sign img, .ms-sign img { display:block; width:96px; height:32px; object-fit:contain; margin:0 auto 4px; }
 .marksheet-paper .student-record-list article {
   background: #fff;
   border-bottom-color: #dcebf7;
